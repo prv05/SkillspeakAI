@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Skill Speak AI - Feedback</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dark">
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar-modern">
+      <div class="sidebar-logo">SkillSpeak</div>
+      <ul class="sidebar-menu">
+        <li class="sidebar-item" onclick="window.location.href='dashboard.html'"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></li>
+        <li class="sidebar-item" onclick="window.location.href='profile.html'"><i class="fas fa-user"></i> <span>Profile</span></li>
+        <li class="sidebar-item" onclick="window.location.href='resources.html'"><i class="fas fa-book"></i> <span>Resources</span></li>
+        <li class="sidebar-item active"><i class="fas fa-comment-dots"></i> <span>Feedback</span></li>
+        <li class="sidebar-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-modern">
+      <!-- Top Bar -->
+      <div class="topbar">
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search feedback..." />
+        </div>
+        <div class="topbar-actions">
+          <button class="topbar-btn"><i class="fas fa-filter"></i> Filter</button>
+          <button class="topbar-btn"><i class="fas fa-download"></i> Export</button>
+          <div class="user-info" onclick="window.location.href='profile.html'" style="cursor: pointer;">
+            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="user-avatar" />
+            <span class="user-name">Alex</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Title -->
+      <h1 class="dashboard-title">Feedback Center</h1>
+      <p class="dashboard-subtitle">View AI feedback from your sessions and share your thoughts with us</p>
+
+      <!-- Feedback Tabs -->
+      <div class="feedback-tabs">
+        <button class="tab-btn active" onclick="showTab('ai-feedback')">🤖 AI Feedback</button>
+        <button class="tab-btn" onclick="showTab('submit-feedback')">📝 Submit Feedback</button>
+        <button class="tab-btn" onclick="showTab('improvements')">📈 Improvements</button>
+      </div>
+
+      <!-- AI Feedback Tab -->
+      <div id="ai-feedback" class="tab-content">
+        <div class="analytics-card">
+          <div class="analytics-header">
+            <span>🤖 AI Session Feedback</span>
+            <select>
+              <option>All time</option>
+              <option>This month</option>
+              <option>This week</option>
+            </select>
+          </div>
+          <div class="ai-feedback-grid" id="aiFeedbackGrid">
+            <!-- Empty State -->
+            <div class="empty-state">
+              <div class="icon">🤖</div>
+              <h3>No AI feedback yet</h3>
+              <p>Complete your first session to receive AI feedback and improvement suggestions</p>
+              <button class="btn" style="margin-top: 1rem;" onclick="window.location.href='dashboard.html'">Start Session</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Feedback Tab -->
+      <div id="submit-feedback" class="tab-content" style="display: none;">
+        <div class="analytics-card">
+          <div class="analytics-header">
+            <span>📝 Submit Feedback</span>
+          </div>
+          <p style="margin-bottom: 2rem; opacity: 0.8;">Help us improve Skill Speak AI by sharing your experience and suggestions.</p>
+          <form class="feedback-form">
+            <div class="form-group">
+              <label for="feedbackType">Feedback Type</label>
+              <select id="feedbackType" required>
+                <option value="">Select feedback type</option>
+                <option value="bug">Bug Report</option>
+                <option value="feature">Feature Request</option>
+                <option value="improvement">Improvement Suggestion</option>
+                <option value="general">General Feedback</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="feedbackTitle">Title</label>
+              <input type="text" id="feedbackTitle" placeholder="Brief description of your feedback" required>
+            </div>
+            <div class="form-group">
+              <label for="feedbackDescription">Description</label>
+              <textarea id="feedbackDescription" placeholder="Please provide detailed information about your feedback..." required></textarea>
+            </div>
+            <div class="form-group">
+              <label for="feedbackEmail">Email (optional)</label>
+              <input type="email" id="feedbackEmail" placeholder="Enter your email for follow-up">
+            </div>
+            <button type="submit" class="btn" onclick="submitFeedback(event)">Submit Feedback</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Improvements Tab -->
+      <div id="improvements" class="tab-content" style="display: none;">
+        <div class="analytics-card">
+          <div class="analytics-header">
+            <span>📈 Suggested Improvements</span>
+          </div>
+          <div class="empty-state">
+            <div class="icon">📈</div>
+            <h3>No improvement suggestions yet</h3>
+            <p>Complete more sessions to receive personalized improvement recommendations</p>
+            <button class="btn" style="margin-top: 1rem;" onclick="window.location.href='dashboard.html'">Start Practicing</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <style>
+    /* Feedback specific styles */
+    .feedback-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 1rem;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: inherit;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+
+    .tab-btn:hover {
+      background: rgba(63, 186, 254, 0.1);
+      color: var(--primary);
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .ai-feedback-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feedback-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .feedback-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .feedback-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .feedback-title {
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    .feedback-date {
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+
+    .feedback-score {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .score-badge {
+      background: var(--gradient);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+
+    .feedback-content {
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+
+    .feedback-tags {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .feedback-tag {
+      background: rgba(63, 186, 254, 0.1);
+      color: var(--primary);
+      padding: 0.25rem 0.5rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+    }
+
+    .feedback-form {
+      max-width: 600px;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 120px;
+      background: #23262f;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      padding: 0.75rem;
+      transition: border-color 0.2s;
+    }
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(63, 186, 254, 0.2);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      opacity: 0.7;
+    }
+
+    .empty-state .icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+      margin-bottom: 0.5rem;
+      color: var(--primary);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .feedback-tabs {
+        flex-direction: column;
+      }
+      
+      .ai-feedback-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <script>
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        alert('Logging out...');
+        window.location.href = 'landing_page.html';
+      }
+    }
+
+    // Tab functionality
+    function showTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.style.display = 'none';
+      });
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.getElementById(tabName).style.display = 'block';
+      event.target.classList.add('active');
+    }
+
+    // Submit feedback
+    function submitFeedback(event) {
+      event.preventDefault();
+      const type = document.getElementById('feedbackType').value;
+      const title = document.getElementById('feedbackTitle').value;
+      const description = document.getElementById('feedbackDescription').value;
+      const email = document.getElementById('feedbackEmail').value;
+      if (!type || !title || !description) {
+        alert('Please fill in all required fields');
+        return;
+      }
+      alert('Thank you for your feedback! We appreciate your input.');
+      document.getElementById('feedbackType').value = '';
+      document.getElementById('feedbackTitle').value = '';
+      document.getElementById('feedbackDescription').value = '';
+      document.getElementById('feedbackEmail').value = '';
+    }
+  </script>
+</body>
+</html> 

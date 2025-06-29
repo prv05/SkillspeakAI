@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Skill Speak AI - Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="dark">
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar-modern">
+      <div class="sidebar-logo">SkillSpeak</div>
+      <ul class="sidebar-menu">
+        <li class="sidebar-item active"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></li>
+        <li class="sidebar-item" onclick="window.location.href='profile.html'"><i class="fas fa-user"></i> <span>Profile</span></li>
+        <li class="sidebar-item" onclick="window.location.href='resources.html'"><i class="fas fa-book"></i> <span>Resources</span></li>
+        <li class="sidebar-item" onclick="window.location.href='feedback.html'"><i class="fas fa-comment-dots"></i> <span>Feedback</span></li>
+        <li class="sidebar-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-modern">
+      <!-- Top Bar -->
+      <div class="topbar">
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search..." />
+        </div>
+        <div class="topbar-actions">
+          <div class="filter-dropdown-container" style="position: relative; display: inline-block;">
+            <button class="topbar-btn" id="filterBtn"><i class="fas fa-filter"></i> Filter by</button>
+            <div id="filterDropdown" style="display:none; position:absolute; right:0; top:110%; background:#23262f; border:1px solid #333; border-radius:8px; min-width:160px; z-index:10;">
+              <div class="filter-option" data-period="all" style="padding:10px; cursor:pointer;">All Time</div>
+              <div class="filter-option" data-period="today" style="padding:10px; cursor:pointer;">Today</div>
+              <div class="filter-option" data-period="week" style="padding:10px; cursor:pointer;">This Week</div>
+              <div class="filter-option" data-period="month" style="padding:10px; cursor:pointer;">This Month</div>
+            </div>
+          </div>
+          <button class="topbar-btn"><i class="fas fa-download"></i> Export</button>
+          <div class="user-info" onclick="window.location.href='profile.html'" style="cursor: pointer;">
+            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="user-avatar" />
+            <span class="user-name">Alex</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Title -->
+      <h1 class="dashboard-title">Dashboard</h1>
+      <p class="dashboard-subtitle">Here's your analytic details</p>
+
+      <!-- Stat Cards -->
+      <div class="stat-cards-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Sessions</div>
+          <div class="stat-value">3</div>
+          <div class="stat-desc"><span class="stat-up">+1</span> today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg. Score</div>
+          <div class="stat-value">85%</div>
+          <div class="stat-desc"><span class="stat-up">+2%</span> this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Time Practiced</div>
+          <div class="stat-value">2h</div>
+          <div class="stat-desc"><span class="stat-up">+30m</span> this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Skills Mastered</div>
+          <div class="stat-value">2</div>
+          <div class="stat-desc"><span class="stat-up">+1</span> this month</div>
+        </div>
+      </div>
+
+      <!-- Analytics Row -->
+      <div class="analytics-row">
+        <!-- Revenue/Progress Chart -->
+        <div class="analytics-card">
+          <div class="analytics-header">
+            <span>Progress</span>
+            <select>
+              <option>Month</option>
+              <option>Week</option>
+            </select>
+          </div>
+          <canvas id="progressChart" height="120"></canvas>
+        </div>
+        <!-- Traffic Channel Donut Chart -->
+        <div class="analytics-card">
+          <div class="analytics-header">
+            <span>Session Types</span>
+            <select>
+              <option>All time</option>
+              <option>This month</option>
+            </select>
+          </div>
+          <canvas id="donutChart" height="120"></canvas>
+        </div>
+      </div>
+
+      <!-- Recent Sessions Table -->
+      <div class="activity-card">
+        <div class="activity-header">
+          <span>Recent Sessions</span>
+          <select>
+            <option>Last 30 days</option>
+            <option>Last 7 days</option>
+          </select>
+        </div>
+        <table class="activity-table">
+          <thead>
+            <tr>
+              <th>Session Type</th>
+              <th>Date</th>
+              <th>Score</th>
+              <th>Duration</th>
+              <th>Focus</th>
+            </tr>
+          </thead>
+          <tbody id="sessionsTableBody">
+            <tr>
+              <td>Interview</td>
+              <td>2024-06-10</td>
+              <td>90%</td>
+              <td>45 min</td>
+              <td>Problem Solving</td>
+            </tr>
+            <tr>
+              <td>Practice</td>
+              <td>2024-06-09</td>
+              <td>80%</td>
+              <td>30 min</td>
+              <td>Communication</td>
+            </tr>
+            <tr>
+              <td>Resource</td>
+              <td>2024-06-08</td>
+              <td>85%</td>
+              <td>60 min</td>
+              <td>Leadership</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+  <script>
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        alert('Logging out...');
+        window.location.href = 'landing_page.html';
+      }
+    }
+    // Chart.js Bar Chart
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          label: 'Sessions',
+          data: [1, 2, 1, 3, 2, 3],
+          backgroundColor: 'rgba(63,186,254,0.7)',
+          borderRadius: 8,
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false } },
+          y: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }
+        }
+      }
+    });
+    // Chart.js Donut Chart
+    const dtx = document.getElementById('donutChart').getContext('2d');
+    new Chart(dtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Practice', 'Interview', 'Resource'],
+        datasets: [{
+          data: [1, 1, 1],
+          backgroundColor: [
+            'rgba(63,186,254,0.7)',
+            'rgba(143,63,230,0.7)',
+            'rgba(63,254,210,0.7)'
+          ],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        plugins: { legend: { labels: { color: '#fff' } } },
+        cutout: '70%',
+      }
+    });
+    // Filter by Time Period functionality
+    const filterBtn = document.getElementById('filterBtn');
+    const filterDropdown = document.getElementById('filterDropdown');
+    filterBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      filterDropdown.style.display = filterDropdown.style.display === 'block' ? 'none' : 'block';
+    });
+    document.addEventListener('click', function() {
+      filterDropdown.style.display = 'none';
+    });
+    filterDropdown.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (e.target.classList.contains('filter-option')) {
+        applySessionFilter(e.target.getAttribute('data-period'));
+        filterDropdown.style.display = 'none';
+      }
+    });
+    function applySessionFilter(period) {
+      // Sample data (should match table rows)
+      const allSessions = [
+        { type: 'Interview', date: '2024-06-10', score: '90%', duration: '45 min', focus: 'Problem Solving' },
+        { type: 'Practice', date: '2024-06-09', score: '80%', duration: '30 min', focus: 'Communication' },
+        { type: 'Resource', date: '2024-06-08', score: '85%', duration: '60 min', focus: 'Leadership' },
+      ];
+      const today = new Date().toISOString().slice(0, 10);
+      const now = new Date();
+      const weekAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+      const monthAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29);
+      let filtered = allSessions;
+      if (period === 'today') {
+        filtered = allSessions.filter(s => s.date === today);
+      } else if (period === 'week') {
+        filtered = allSessions.filter(s => new Date(s.date) >= weekAgo);
+      } else if (period === 'month') {
+        filtered = allSessions.filter(s => new Date(s.date) >= monthAgo);
+      }
+      const tbody = document.getElementById('sessionsTableBody');
+      tbody.innerHTML = '';
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; opacity:0.7;">No sessions found for this period.</td></tr>';
+      } else {
+        filtered.forEach(s => {
+          tbody.innerHTML += `<tr><td>${s.type}</td><td>${s.date}</td><td>${s.score}</td><td>${s.duration}</td><td>${s.focus}</td></tr>`;
+        });
+      }
+    }
+  </script>
+</body>
+</html> 

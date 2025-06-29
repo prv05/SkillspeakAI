@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Skill Speak AI - Profile</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dark">
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar-modern">
+      <div class="sidebar-logo">SkillSpeak</div>
+      <ul class="sidebar-menu">
+        <li class="sidebar-item" onclick="window.location.href='dashboard.html'"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></li>
+        <li class="sidebar-item active"><i class="fas fa-user"></i> <span>Profile</span></li>
+        <li class="sidebar-item" onclick="window.location.href='resources.html'"><i class="fas fa-book"></i> <span>Resources</span></li>
+        <li class="sidebar-item" onclick="window.location.href='feedback.html'"><i class="fas fa-comment-dots"></i> <span>Feedback</span></li>
+        <li class="sidebar-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></li>
+      </ul>
+    </aside>
+    <!-- Main Content -->
+    <div class="profile-main-container">
+      <h1 class="dashboard-title">Profile Settings</h1>
+      <p class="dashboard-subtitle">Manage your account information and preferences</p>
+      <div class="profile-cards-grid">
+        <!-- Profile Picture + Account Settings Row -->
+        <div class="profile-row-2col">
+          <!-- Profile Picture -->
+          <div class="profile-card profile-picture-card">
+            <h2 class="profile-card-title"><i class="fas fa-image"></i> Profile Picture</h2>
+            <div class="avatar-section">
+              <div class="avatar-preview" id="avatarPreviewContainer">
+                <img src="" alt="Profile Picture" id="profileAvatar" style="display:none;" onerror="this.style.display='none';document.getElementById('defaultAvatarIcon').style.display='block';document.getElementById('removeAvatarBtn').style.display='none';" />
+                <span id="defaultAvatarIcon" style="display:block; width:100%; height:100%; position:absolute; top:0; left:0; display:flex; align-items:center; justify-content:center;">
+                  <svg width="100%" height="100%" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="55" cy="55" r="55" fill="#23262f"/>
+                    <ellipse cx="55" cy="50" rx="28" ry="28" fill="#444"/>
+                    <ellipse cx="55" cy="88" rx="44" ry="24" fill="#444"/>
+                  </svg>
+                </span>
+                <button class="avatar-edit-btn" id="avatarEditBtn" type="button" onclick="triggerAvatarUpload()"><i class="fas fa-pen"></i></button>
+                <input type="file" id="avatarUpload" accept="image/*" style="display:none;">
+              </div>
+              <button class="btn btn-secondary" id="removeAvatarBtn" type="button" style="margin-top:0.7rem; display:none;" onclick="removeAvatar()">Remove</button>
+              <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.7;">
+                Upload a profile picture to personalize your account
+              </p>
+            </div>
+          </div>
+          <!-- Account Settings -->
+          <div class="profile-card">
+            <h2 class="profile-card-title"><i class="fas fa-cog"></i> Account Settings</h2>
+            <div class="form-group">
+              <label for="accountName">Name</label>
+              <input type="text" id="accountName" placeholder="Enter your name">
+            </div>
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input type="text" id="username" placeholder="Enter username">
+            </div>
+            <button class="btn btn-secondary" id="showChangePasswordBtn" type="button" onclick="showChangePasswordForm()">Change Password</button>
+            <div id="changePasswordForm" style="display:none; margin-top:1.2rem;">
+              <div class="form-group">
+                <label for="currentPassword">Current Password</label>
+                <input type="password" id="currentPassword" placeholder="Enter current password">
+              </div>
+              <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <input type="password" id="newPassword" placeholder="Enter new password">
+              </div>
+              <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" placeholder="Confirm new password">
+              </div>
+              <div style="display:flex; gap:1rem;">
+                <button class="btn" type="button">Save Password</button>
+                <button class="btn btn-secondary" type="button" onclick="hideChangePasswordForm()">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        alert('Logging out...');
+        window.location.href = 'landing_page.html';
+      }
+    }
+    // Handle form submissions
+    document.querySelectorAll('.btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        if (this.textContent === 'Save Changes' || this.textContent === 'Update Password' || this.textContent === 'Save Preferences') {
+          alert('Settings saved successfully!');
+        }
+      });
+    });
+    function showChangePasswordForm() {
+      document.getElementById('changePasswordForm').style.display = 'block';
+      document.getElementById('showChangePasswordBtn').style.display = 'none';
+    }
+    function hideChangePasswordForm() {
+      document.getElementById('changePasswordForm').style.display = 'none';
+      document.getElementById('showChangePasswordBtn').style.display = 'inline-block';
+    }
+    // Avatar logic
+    function triggerAvatarUpload() {
+      document.getElementById('avatarUpload').click();
+    }
+    function removeAvatar() {
+      var avatar = document.getElementById('profileAvatar');
+      var defaultIcon = document.getElementById('defaultAvatarIcon');
+      var removeBtn = document.getElementById('removeAvatarBtn');
+      avatar.src = '';
+      avatar.style.display = 'none';
+      defaultIcon.style.display = 'block';
+      removeBtn.style.display = 'none';
+    }
+    document.getElementById('avatarUpload').addEventListener('change', function(e) {
+      var file = e.target.files[0];
+      var avatar = document.getElementById('profileAvatar');
+      var defaultIcon = document.getElementById('defaultAvatarIcon');
+      var removeBtn = document.getElementById('removeAvatarBtn');
+      if (file) {
+        var reader = new FileReader();
+        reader.onload = function(evt) {
+          avatar.src = evt.target.result;
+          avatar.style.display = 'block';
+          defaultIcon.style.display = 'none';
+          removeBtn.style.display = 'inline-block';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+    // On page load, ensure default avatar and remove button are set correctly
+    window.addEventListener('DOMContentLoaded', function() {
+      var avatar = document.getElementById('profileAvatar');
+      var defaultIcon = document.getElementById('defaultAvatarIcon');
+      var removeBtn = document.getElementById('removeAvatarBtn');
+      if (!avatar.src || avatar.src === window.location.href) {
+        avatar.style.display = 'none';
+        defaultIcon.style.display = 'block';
+        removeBtn.style.display = 'none';
+      } else {
+        avatar.style.display = 'block';
+        defaultIcon.style.display = 'none';
+        removeBtn.style.display = 'inline-block';
+      }
+    });
+  </script>
+</body>
+</html> 
