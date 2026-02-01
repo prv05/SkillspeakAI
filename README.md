@@ -36,22 +36,22 @@ Watch the full demo video to see SkillSpeak AI in action:
 ## 📸 Screenshots
 
 ### User Dashboard
-![User Dashboard](.SkillspeakAi/images/user%20dashboard.png)
+![User Dashboard](./images/user%20dashboard.png)
 
 ### Interview Session - Part 1
-![Interview Session 1](.SkillspeakAi/images/interview%201.png)
+![Interview Session 1](./images/interview%201.png)
 
 ### Interview Session - Part 2
-![Interview Session 2](.SkillspeakAi/images/interview%202.png)
+![Interview Session 2](./images/interview%202.png)
 
 ### Live Feedback
-![Live Feedback](.SkillspeakAi/images/live%20feedback.png)
+![Live Feedback](./images/live%20feedback.png)
 
 ### Admin Dashboard
-![Admin Dashboard](.SkillspeakAi/images/admin%20dashboard.png)
+![Admin Dashboard](./images/admin%20dashboard.png)
 
 ### Feedback Section
-![Feedback Section](.SkillspeakAi/images/feedback%20section.png)
+![Feedback Section](./images/feedback%20section.png)
 
 ## 🛠️ Tech Stack
 

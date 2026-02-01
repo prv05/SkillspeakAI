@@ -545,7 +545,7 @@
 
     <!-- Login Container -->
     <div class="login-container">
-        <a href="landing_page.html" class="back-home">
+        <a href="index.html" class="back-home">
             <i class="fas fa-arrow-left"></i> Back to Home
         </a>
 
@@ -559,36 +559,31 @@
             <div class="message error" id="errorMessage"></div>
             <div class="message success" id="successMessage"></div>
 
-            <form id="loginForm">
+            <form id="loginForm" class="login-form">
                 <div class="form-group">
-                    <label for="email">Email Address</label>
+                    <label for="email">Email</label>
                     <div class="input-group">
-                        <input type="email" id="email" class="form-control" placeholder="Enter your email address" required>
                         <i class="fas fa-envelope"></i>
+                        <input id="email" name="email" type="email" class="form-control" placeholder="Enter your email" required />
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label for="password">Password</label>
                     <div class="input-group">
-                        <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
                         <i class="fas fa-lock"></i>
+                        <input id="password" name="password" type="password" class="form-control" placeholder="Enter your password" required />
                     </div>
                 </div>
-
-                <div class="form-options">
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="remember">
-                        <label for="remember">Remember me</label>
-                    </div>
-                    <a href="#" class="forgot-password">Forgot Password?</a>
-                </div>
-
-                <button type="submit" class="login-btn" id="loginBtn">
-                    <span id="loginText">Sign In</span>
-                    <div class="loading" id="loading"></div>
+                <button id="loginBtn" type="submit" class="login-btn">
+                    <span id="loginText">Login</span>
+                    <span class="loading" id="loading"></span>
                 </button>
             </form>
+            <script src="script.js"></script>
+            <script>
+              // Only attach the login handler, do not call any protected API functions here
+              document.getElementById("loginForm").onsubmit = loginHandler;
+            </script>
 
             <div class="divider">
                 <span>or continue with</span>
@@ -608,6 +603,7 @@
             </div>
         </div>
     </div>
+    
 
     <script>
         // Create floating particles
@@ -647,25 +643,13 @@
             loading.style.display = 'block';
             loginBtn.disabled = true;
 
-            // Simulate login process
+            // Simulate successful login (demo mode)
             setTimeout(() => {
-                // Simple validation
-                if (email && password) {
-                    // Simulate successful login
-                    successMessage.textContent = 'Login successful! Redirecting to dashboard...';
-                    successMessage.style.display = 'block';
-                    
-                    // Redirect to dashboard after 2 seconds
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 2000);
-                } else {
-                    // Show error
-                    errorMessage.textContent = 'Please fill in all required fields';
-                    errorMessage.style.display = 'block';
-                }
-
-                // Hide loading
+                successMessage.textContent = 'Login successful! Redirecting to dashboard...';
+                successMessage.style.display = 'block';
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 2000);
                 loginText.style.display = 'block';
                 loading.style.display = 'none';
                 loginBtn.disabled = false;

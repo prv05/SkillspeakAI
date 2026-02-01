@@ -547,7 +547,7 @@
 
     <!-- Signup Container -->
     <div class="signup-container">
-        <a href="landing_page.html" class="back-home">
+        <a href="index.html" class="back-home">
             <i class="fas fa-arrow-left"></i> Back to Home
         </a>
 
@@ -561,60 +561,48 @@
             <div class="message error" id="errorMessage"></div>
             <div class="message success" id="successMessage"></div>
 
-            <form id="signupForm">
-                <div class="name-row">
-                    <div class="form-group">
-                        <label for="firstName">First Name</label>
-                        <div class="input-group">
-                            <input type="text" id="firstName" class="form-control" placeholder="Enter first name" required>
-                            <i class="fas fa-user"></i>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="lastName">Last Name</label>
-                        <div class="input-group">
-                            <input type="text" id="lastName" class="form-control" placeholder="Enter last name" required>
-                            <i class="fas fa-user"></i>
-                        </div>
-                    </div>
-                </div>
-
+            <form id="signupForm" class="signup-form">
                 <div class="form-group">
-                    <label for="email">Email Address</label>
+                    <label for="name">Full Name</label>
                     <div class="input-group">
-                        <input type="email" id="email" class="form-control" placeholder="Enter your email address" required>
-                        <i class="fas fa-envelope"></i>
+                        <i class="fas fa-user"></i>
+                        <input id="name" name="name" class="form-control" placeholder="Enter your full name" required />
                     </div>
                 </div>
-
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input id="email" name="email" type="email" class="form-control" placeholder="Enter your email" required />
+                    </div>
+                </div>
                 <div class="form-group">
                     <label for="password">Password</label>
                     <div class="input-group">
-                        <input type="password" id="password" class="form-control" placeholder="Create a strong password" required>
                         <i class="fas fa-lock"></i>
+                        <input id="password" name="password" type="password" class="form-control" placeholder="Create a password" required />
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label for="confirmPassword">Confirm Password</label>
                     <div class="input-group">
-                        <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm your password" required>
                         <i class="fas fa-lock"></i>
+                        <input id="confirmPassword" name="confirmPassword" type="password" class="form-control" placeholder="Confirm your password" required />
                     </div>
                 </div>
-
-                <div class="form-options">
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="terms" required>
-                        <label for="terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
-                    </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="terms" required />
+                    <label for="terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
                 </div>
-
-                <button type="submit" class="signup-btn" id="signupBtn">
-                    <span id="signupText">Create Account</span>
-                    <div class="loading" id="loading"></div>
+                <button id="signupBtn" type="submit" class="signup-btn">
+                    <span id="signupText">Sign Up</span>
+                    <span class="loading" id="loading"></span>
                 </button>
             </form>
+            <script src="script.js"></script>
+            <script>
+              document.getElementById("signupForm").onsubmit = signupHandler;
+            </script>
 
             <div class="divider">
                 <span>or sign up with</span>
@@ -703,16 +691,16 @@
             loading.style.display = 'block';
             signupBtn.disabled = true;
 
-            // Simulate signup process
+            // Simulate successful signup (demo mode)
             setTimeout(() => {
-                // Simulate successful signup
                 successMessage.textContent = 'Account created successfully! Redirecting to dashboard...';
                 successMessage.style.display = 'block';
-                
-                // Redirect to dashboard after 2 seconds
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
                 }, 2000);
+                signupText.style.display = 'block';
+                loading.style.display = 'none';
+                signupBtn.disabled = false;
             }, 1500);
         }
 
