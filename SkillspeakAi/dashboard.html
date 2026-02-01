@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Skill Speak AI - Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    .analytics-row {
+      display: flex;
+      gap: 24px;
+      width: 100%;
+      align-items: stretch;
+    }
+    .dashboard-graph-card {
+      height: 400px;
+      min-height: 400px;
+      background: var(--bg-card, #23262f);
+      border-radius: 24px;
+      box-shadow: 0 8px 32px 0 rgba(40,48,80,0.18);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      flex: 1 1 0;
+      min-width: 0;
+      box-sizing: border-box;
+      margin-bottom: 0;
+      overflow: hidden;
+    }
+    .dashboard-graph-card .analytics-header {
+      padding: 24px 24px 0 24px;
+    }
+    .dashboard-graph-card .chart-area {
+      flex: 1;
+      padding: 0 24px 24px 24px;
+      display: flex;
+      align-items: stretch;
+      justify-content: stretch;
+      min-width: 0;
+      min-height: 0;
+    }
+    .dashboard-graph-card .chart-area.doughnut-area {
+      aspect-ratio: 1 / 1;
+      width: 100%;
+      max-width: 320px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 0 24px 0;
+    }
+    .dashboard-graph-card canvas {
+      width: 100% !important;
+      height: 100% !important;
+      background: transparent;
+      display: block;
+      min-width: 0;
+      min-height: 0;
+    }
+  </style>
+</head>
+<body class="dark">
+  <script>
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      window.location.href = "login.html";
+    }
+  </script>
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar-modern">
+      <div class="sidebar-logo">SkillSpeak</div>
+      <ul class="sidebar-menu">
+        <li class="sidebar-item active"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></li>
+        <li class="sidebar-item" onclick="window.location.href='chat.html'"><i class="fas fa-comments"></i> <span>Chat</span></li>
+        <li class="sidebar-item" onclick="window.location.href='profile.html'"><i class="fas fa-user"></i> <span>Profile</span></li>
+        <li class="sidebar-item admin-only" onclick="window.location.href='admin.html'" style="display: none;"><i class="fas fa-tools"></i> <span>Admin Panel</span></li>
+        <li class="sidebar-item" onclick="window.location.href='feedback.html'"><i class="fas fa-comment-dots"></i> <span>Feedback</span></li>
+        <li class="sidebar-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-modern">
+      <!-- Top Bar -->
+      <div class="topbar">
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search..." id="dashboardSearchInput" />
+        </div>
+        <div class="topbar-actions">
+          <div class="filter-dropdown-container" style="position: relative; display: inline-block;">
+            <button class="topbar-btn" id="filterBtn"><i class="fas fa-filter"></i> Filter by</button>
+            <div id="filterDropdown" style="display:none; position:absolute; right:0; top:110%; background:#23262f; border:1px solid #333; border-radius:8px; min-width:160px; z-index:10;">
+              <div class="filter-option" data-period="all" style="padding:10px; cursor:pointer;">All Time</div>
+              <div class="filter-option" data-period="today" style="padding:10px; cursor:pointer;">Today</div>
+              <div class="filter-option" data-period="week" style="padding:10px; cursor:pointer;">This Week</div>
+              <div class="filter-option" data-period="month" style="padding:10px; cursor:pointer;">This Month</div>
+            </div>
+          </div>
+          <button class="topbar-btn" id="exportDashboardBtn"><i class="fas fa-download"></i> Export</button>
+          <div class="user-info" onclick="window.location.href='profile.html'" style="cursor: pointer;">
+            <span id="userAvatarContainer">
+              <i class="fas fa-user-circle" style="font-size:2rem;"></i>
+            </span>
+            <span class="user-name" id="userName">Guest</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Title -->
+      <h1 class="dashboard-title">Dashboard</h1>
+      <p class="dashboard-subtitle">Here's your analytic details</p>
+
+      <!-- Stat Cards -->
+      <div class="stat-cards-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Sessions</div>
+          <div class="stat-value" id="totalSessions"></div>
+          <div class="stat-desc" id="sessionsDesc"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg. Score</div>
+          <div class="stat-value" id="avgScore"></div>
+          <div class="stat-desc" id="scoreDesc"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Time Practiced</div>
+          <div class="stat-value" id="timePracticed"></div>
+          <div class="stat-desc" id="timeDesc"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Streak Count</div>
+          <div class="stat-value" id="streakCount"></div>
+          <div class="stat-desc" id="longestStreak"></div>
+        </div>
+      </div>
+
+      <!-- Analytics Row -->
+      <div class="analytics-row">
+        <!-- Performance Graph Card -->
+        <div class="dashboard-graph-card">
+          <div class="analytics-header">
+            <span>Performance Graph</span>
+            <select id="performanceSelect">
+              <option value="week">Week</option>
+              <option value="month">Month</option>
+              <option value="year">Year</option>
+            </select>
+          </div>
+          <div class="chart-area">
+            <canvas id="performanceChart"></canvas>
+          </div>
+        </div>
+        <!-- Session Outcomes Card -->
+        <div class="dashboard-graph-card">
+          <div class="analytics-header">
+            <span>Session Outcomes</span>
+            <select id="outcomesSelect">
+              <option value="all">All time</option>
+              <option value="month">This month</option>
+            </select>
+          </div>
+          <div class="chart-area doughnut-area">
+            <canvas id="outcomesChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Sessions Table -->
+      <div class="activity-card">
+        <div class="activity-header">
+          <span>Recent Sessions</span>
+          <select id="sessionTableSelect">
+            <option value="30">Last 30 days</option>
+            <option value="7">Last 7 days</option>
+          </select>
+        </div>
+        <table class="activity-table">
+          <thead>
+            <tr>
+              <th>Session Name</th>
+              <th>Date</th>
+              <th>Score</th>
+              <th>Duration</th>
+            </tr>
+          </thead>
+          <tbody id="sessionsTableBody">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+  <script src="script.js"></script>
+  <script>
+let allSessionDocsForTable = [];
+let currentFilter = 'all';
+
+function filterSessions(sessions, filter) {
+  const today = new Date();
+  if (filter === 'all') return sessions;
+  if (filter === 'today') {
+    return sessions.filter(s => {
+      if (!s.start_time) return false;
+      const d = new Date(s.start_time);
+      return d.toDateString() === today.toDateString();
+    });
+  }
+  if (filter === 'week') {
+    // Get Monday of this week
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+    return sessions.filter(s => {
+      if (!s.start_time) return false;
+      const d = new Date(s.start_time);
+      return d >= monday && d <= today;
+    });
+  }
+  if (filter === 'month') {
+    return sessions.filter(s => {
+      if (!s.start_time) return false;
+      const d = new Date(s.start_time);
+      return d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
+    });
+  }
+  return sessions;
+}
+
+function renderDashboardWithFilter() {
+  const sessionDocsForTable = filterSessions(allSessionDocsForTable, currentFilter);
+  renderSessionsTable(sessionDocsForTable);
+  // Re-render stats
+  document.getElementById("totalSessions").innerText = sessionDocsForTable.length || 0;
+  // Sessions Today
+  let todaySessions = sessionDocsForTable.filter(s => {
+    if (!s.start_time) return false;
+    const date = new Date(s.start_time).toDateString();
+    return date === new Date().toDateString();
+  });
+  let todaySessionsText = `Sessions Today: ${todaySessions.length}`;
+  if (todaySessions.length > 0) {
+    todaySessionsText = `<span style='color:#4caf50;font-weight:bold;'>Sessions Today: +${todaySessions.length}</span>`;
+  }
+  document.getElementById("sessionsDesc").innerHTML = todaySessionsText;
+  // Streaks
+  const streaks = calculateStreaks(sessionDocsForTable);
+  document.getElementById("streakCount").innerText = streaks.current || 0;
+  document.getElementById("longestStreak").innerText = `Longest Streak: ${streaks.longest || 0}`;
+  // Performance Graph
+  const perfSelect = document.getElementById('performanceSelect');
+  if (perfSelect) {
+    renderPerformanceGraph(sessionDocsForTable, perfSelect.value);
+  }
+  // Outcomes Chart
+  renderOutcomesChart(sessionDocsForTable);
+}
+
+// Filter dropdown logic (move this after DOMContentLoaded)
+document.addEventListener('DOMContentLoaded', function() {
+  const filterBtn = document.getElementById('filterBtn');
+  const filterDropdown = document.getElementById('filterDropdown');
+  filterBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    filterDropdown.style.display = filterDropdown.style.display === 'block' ? 'none' : 'block';
+  });
+  document.addEventListener('click', function() {
+    filterDropdown.style.display = 'none';
+  });
+  filterDropdown.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (e.target.classList.contains('filter-option')) {
+      currentFilter = e.target.getAttribute('data-period');
+      // Update filter button text (optional)
+      filterBtn.innerHTML = `<i class='fas fa-filter'></i> Filter by: ${e.target.textContent}`;
+      renderDashboardWithFilter();
+      filterDropdown.style.display = 'none';
+    }
+  });
+  loadDashboardData();
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  loadDashboardData();
+  loadUserInfo();
+});
+
+function calculateStreaks(sessions) {
+  // Use start_time or date from session documents
+  const dates = sessions
+    .map(s => s.start_time || s.date)
+    .filter(Boolean)
+    .map(d => new Date(d).toDateString());
+  // Sort dates in ascending order for streak calculation
+  const uniqueDates = [...new Set(dates)].sort((a, b) => new Date(a) - new Date(b));
+  let streak = 0, longest = 0;
+  let prev = null;
+  uniqueDates.forEach(dateStr => {
+    const date = new Date(dateStr);
+    if (!prev) {
+      streak = 1;
+    } else {
+      const diff = (date - prev) / (1000 * 60 * 60 * 24);
+      if (diff === 1) {
+        streak++;
+      } else {
+        streak = 1;
+      }
+    }
+    if (streak > longest) longest = streak;
+    prev = date;
+  });
+  return { current: streak, longest };
+}
+
+async function loadDashboardData() {
+  // Guard: Only proceed if jwtToken is present
+  const jwtToken = localStorage.getItem('jwtToken');
+  if (!jwtToken) {
+    window.location.href = "login.html";
+    return;
+  }
+  // Fetch stats from backend
+  let stats = { total_chats: 0, avg_feedback_score: 0, last_activity: null };
+  try {
+    stats = await apiFetch("/dashboard/stats");
+  } catch (error) {
+    console.error("Failed to fetch dashboard stats:", error);
+  }
+  // Update stat cards
+  document.getElementById("totalSessions").innerText = stats.total_chats || 0;
+  document.getElementById("avgScore").innerText = (stats.avg_feedback_score || 0).toFixed(2);
+  document.getElementById("sessionsDesc").innerText = stats.last_activity ? `Last: ${new Date(stats.last_activity).toLocaleDateString()}` : 'No recent activity';
+  // Set default values for other stats
+  document.getElementById("timePracticed").innerText = "0h";
+  document.getElementById("streakCount").innerText = "0";
+  document.getElementById("longestStreak").innerText = "Longest Streak: 0";
+  document.getElementById("timeDesc").innerText = "Total practice time";
+  // Fetch sessions for table and charts
+  let sessions = [];
+  try {
+    const res = await apiFetch("/voice/sessions");
+    sessions = res.sessions || [];
+  } catch (error) {
+    console.error("Failed to fetch sessions:", error);
+  }
+  // Filter sessions for current user
+  let userName = localStorage.getItem("userName") || "anonymous";
+  let userSessions = sessions.filter(s => s.user_id === userName);
+  document.getElementById("totalSessions").innerText = userSessions.length || 0;
+  // In loadDashboardData, fetch sessions from the session collection and use them for renderSessionsTable
+  let sessionDocsForTable = [];
+  try {
+    const userName = localStorage.getItem("userName") || "anonymous";
+    const jwtToken = localStorage.getItem('jwtToken');
+    const res = await fetch(`${API_BASE}/session/user/${encodeURIComponent(userName)}`, {
+      headers: { 'Authorization': 'Bearer ' + jwtToken }
+    });
+    sessionDocsForTable = await res.json(); // Use the array directly
+    allSessionDocsForTable = sessionDocsForTable; // Save for filtering
+  } catch (error) {
+    console.error("Failed to fetch sessions for table:", error);
+  }
+  renderSessionsTable(sessionDocsForTable);
+  // In loadDashboardData, fetch sessions from the session collection and use them for renderProgressChart
+  let sessionDocsForProgress = [];
+  try {
+    const userName = localStorage.getItem("userName") || "anonymous";
+    const jwtToken = localStorage.getItem('jwtToken');
+    const res = await fetch(`${API_BASE}/session/user/${encodeURIComponent(userName)}`, {
+      headers: { 'Authorization': 'Bearer ' + jwtToken }
+    });
+    sessionDocsForProgress = await res.json();
+  } catch (error) {
+    console.error("Failed to fetch sessions for progress chart:", error);
+  }
+  const progressPeriod = document.getElementById('performanceSelect').value;
+  renderPerformanceGraph(sessionDocsForTable, progressPeriod);
+  // In loadDashboardData, fetch sessions from the session collection and use them for renderOutcomesChart
+  let sessionDocs = [];
+  try {
+    const userName = localStorage.getItem("userName") || "anonymous";
+    const jwtToken = localStorage.getItem('jwtToken');
+    const res = await fetch(`${API_BASE}/session/user/${encodeURIComponent(userName)}`, {
+      headers: { 'Authorization': 'Bearer ' + jwtToken }
+    });
+    sessionDocs = await res.json();
+  } catch (error) {
+    console.error("Failed to fetch sessions for outcomes chart:", error);
+  }
+  renderOutcomesChart(sessionDocs);
+  // Calculate and display streaks
+  // Use sessionDocsForTable, which is already filtered for the current user
+  const streaks = calculateStreaks(sessionDocsForTable);
+  document.getElementById("streakCount").innerText = streaks.current || 0;
+  document.getElementById("longestStreak").innerText = `Longest Streak: ${streaks.longest || 0}`;
+
+  // Show highest score or today's score in avg score card
+  let highest = null, todayScore = null;
+  const todayStr = new Date().toDateString();
+  userSessions.forEach(s => {
+    const score = parseFloat(s.score);
+    if (!isNaN(score)) {
+      if (highest === null || score > highest) highest = score;
+      const sessionDate = s.date ? new Date(s.date).toDateString() : null;
+      if (sessionDate === todayStr) todayScore = score;
+    }
+  });
+  const scoreDescElem = document.getElementById("scoreDesc");
+  if (todayScore !== null) {
+    scoreDescElem.innerText = `Today's Score: ${todayScore}`;
+  } else if (highest !== null) {
+    scoreDescElem.innerText = `Highest Score: ${highest}`;
+  } else {
+    scoreDescElem.innerText = '';
+  }
+
+  // Fetch feedback for current user to count total sessions (summaries)
+  let feedbacks = [];
+  try {
+    const userName = localStorage.getItem("userName") || "anonymous";
+    const jwtToken = localStorage.getItem('jwtToken');
+    const res = await fetch(`${API_BASE}/feedback/list?user_id=${encodeURIComponent(userName)}`, {
+      headers: { 'Authorization': 'Bearer ' + jwtToken }
+    });
+    const data = await res.json();
+    feedbacks = data.feedback || [];
+  } catch (error) {
+    console.error("Failed to fetch feedbacks:", error);
+  }
+  const improvements = feedbacks.filter(fb => fb.type === 'improvement' && fb.improvement);
+  document.getElementById("totalSessions").innerText = sessionDocsForTable.length || 0;
+  // Show today's session count in sessionsDesc
+  let todaySessions = sessionDocsForTable.filter(s => {
+    if (!s.start_time) return false;
+    const date = new Date(s.start_time).toDateString();
+    return date === todayStr;
+  });
+  let todaySessionsText = `Sessions Today: ${todaySessions.length}`;
+  if (todaySessions.length > 0) {
+    todaySessionsText = `<span style='color:#4caf50;font-weight:bold;'>Sessions Today: +${todaySessions.length}</span>`;
+  }
+  document.getElementById("sessionsDesc").innerHTML = todaySessionsText;
+
+  // Calculate average score from improvements
+  let avgScore = 0;
+  if (improvements.length > 0) {
+    let totalScore = 0;
+    improvements.forEach(fb => {
+      // Try to extract score from improvement text (e.g., 'Your average score is 3.0/10.')
+      const match = fb.improvement.match(/average score is ([0-9.]+)\/10/);
+      if (match) totalScore += parseFloat(match[1]);
+    });
+    avgScore = totalScore / improvements.length;
+  }
+  document.getElementById("avgScore").innerText = (avgScore * 10).toFixed(0) + '%';
+
+  // Add 'Score This Week' difference from overall average
+  let weekScores = improvements.slice(-7).map(fb => {
+    const match = fb.improvement.match(/average score is ([0-9.]+)\/10/);
+    return match ? parseFloat(match[1]) : null;
+  }).filter(s => s !== null);
+  let weekAvg = 0;
+  if (weekScores.length > 0) {
+    weekAvg = weekScores.reduce((a, b) => a + b, 0) / weekScores.length;
+  }
+  let weekScoreText = '';
+  if (weekScores.length > 0) {
+    const weekPercent = (weekAvg * 10).toFixed(0);
+    const overallPercent = (avgScore * 10).toFixed(0);
+    const diff = weekPercent - overallPercent;
+    if (diff > 0) {
+      scoreDescElem.innerHTML = `<span style='color:#4caf50;font-weight:bold;'>Score This Week: +${diff}%</span>`;
+    } else if (diff < 0) {
+      scoreDescElem.innerHTML = `<span style='color:#e06c75;font-weight:bold;'>Score This Week: ${diff}%</span>`;
+    } else {
+      scoreDescElem.innerHTML = `<span style='color:#bfc9e0;font-weight:bold;'>Score This Week: 0%</span>`;
+    }
+  } else {
+    scoreDescElem.innerHTML = '';
+  }
+
+  // Fetch sessions for current user from the session collection for practice time
+  let practiceMinutes = 0;
+  let todayPracticeMinutes = 0;
+  try {
+    const userName = localStorage.getItem("userName") || "anonymous";
+    const jwtToken = localStorage.getItem('jwtToken');
+    const res = await fetch(`${API_BASE}/session/user/${encodeURIComponent(userName)}`, {
+      headers: { 'Authorization': 'Bearer ' + jwtToken }
+    });
+    const sessions = await res.json();
+    practiceMinutes = sessions.reduce((sum, s) => sum + (parseInt(s.total_time_minutes) || 0), 0);
+    const todayStr = new Date().toDateString();
+    todayPracticeMinutes = sessions.reduce((sum, s) => {
+      if (!s.start_time) return sum;
+      const date = new Date(s.start_time).toDateString();
+      if (date === todayStr) return sum + (parseInt(s.total_time_minutes) || 0);
+      return sum;
+    }, 0);
+  } catch (error) {
+    console.error("Failed to fetch sessions for practice time:", error);
+  }
+  let hours = Math.floor(todayPracticeMinutes / 60);
+  let minutes = todayPracticeMinutes % 60;
+  let timePracticedText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+  document.getElementById("timePracticed").innerText = timePracticedText;
+  let totalHours = Math.floor(practiceMinutes / 60);
+  let totalMinutes = practiceMinutes % 60;
+  let totalTimeText = totalHours > 0 ? `Total practice time: ${totalHours}h ${totalMinutes}m` : `Total practice time: ${totalMinutes}m`;
+  document.getElementById("timeDesc").innerText = totalTimeText;
+
+  // Register the dropdown event handler only after data is loaded
+  const perfSelect = document.getElementById('performanceSelect');
+  if (perfSelect) {
+    perfSelect.onchange = function() {
+      if (sessionDocsForTable) {
+        renderPerformanceGraph(sessionDocsForTable, perfSelect.value);
+      }
+    };
+    // Initial render
+    renderPerformanceGraph(sessionDocsForTable, perfSelect.value);
+  }
+}
+
+function loadUserInfo() {
+  const userName = localStorage.getItem("userName") || "Guest";
+  document.getElementById("userName").innerText = userName;
+  // Show avatar with first letter of user name
+  const firstLetter = userName.charAt(0).toUpperCase();
+  document.getElementById("userAvatarContainer").innerHTML = `<span style="display:inline-flex;align-items:center;justify-content:center;width:2.2rem;height:2.2rem;border-radius:50%;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-size:1.2rem;font-weight:bold;">${firstLetter}</span>`;
+}
+document.addEventListener('DOMContentLoaded', loadUserInfo);
+
+function renderSessionsTable(sessions) {
+  const tbody = document.getElementById('sessionsTableBody');
+  tbody.innerHTML = '';
+  console.log("Sessions for table:", sessions);
+  if (!sessions || !Array.isArray(sessions) || sessions.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; opacity:0.7;">No sessions found.</td></tr>';
+    return;
+  }
+  sessions.forEach(s => {
+    const sessionName = s.session_name || '-';
+    const date = s.start_time ? String(s.start_time).substring(0, 10) : '-';
+    // Use s.scores if s.score is undefined
+    let scoreVal = (s.score !== undefined && s.score !== null && !isNaN(parseFloat(s.score))) ? parseFloat(s.score) :
+        (s.scores !== undefined && s.scores !== null && !isNaN(parseFloat(s.scores))) ? parseFloat(s.scores) : null;
+    const score = (scoreVal !== null) ? (scoreVal * 10).toFixed(0) + '%' : '-';
+    const duration = (s.total_time_minutes !== undefined && s.total_time_minutes !== null && !isNaN(parseInt(s.total_time_minutes))) ? s.total_time_minutes + ' min' : '-';
+    tbody.innerHTML += `<tr>
+      <td>${sessionName}</td>
+      <td>${date}</td>
+      <td>${score}</td>
+      <td>${duration}</td>
+    </tr>`;
+  });
+}
+
+function groupSessionsByPeriod(sessions, period) {
+  const groups = {};
+  sessions.forEach(s => {
+    if (!s.date && !s.start_time) return;
+    const date = new Date(s.date || s.start_time);
+    let key = '';
+    if (period === 'week') {
+      // Get year-week string
+      const year = date.getFullYear();
+      const week = Math.ceil(((date - new Date(date.getFullYear(),0,1)) / 86400000 + new Date(date.getFullYear(),0,1).getDay()+1)/7);
+      key = `${year}-W${week}`;
+    } else {
+      // Month: YYYY-MM
+      key = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}`;
+    }
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(parseFloat(s.score));
+  });
+  return groups;
+}
+
+function renderProgressChart(sessions, period = 'month') {
+  const ctx = document.getElementById('progressChart').getContext('2d');
+  const groups = groupSessionsByPeriod(sessions, period);
+  const labels = Object.keys(groups).sort();
+  const data = labels.map(label => {
+    const scores = groups[label].filter(score => !isNaN(score));
+    if (scores.length === 0) return 0;
+    return (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(2);
+  });
+  if (window.progressChartObj) window.progressChartObj.destroy();
+  window.progressChartObj = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ label: 'Avg. Score', data, backgroundColor: 'rgba(63,186,254,0.7)', borderRadius: 8 }]
+    },
+    options: { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true, max: 10 } } }
+  });
+}
+
+function renderOutcomesChart(sessions) {
+  // Calculate Pass/Fail based on session score >= 4.0
+  let pass = 0, fail = 0;
+  sessions.forEach(s => {
+    let scoreVal = (s.score !== undefined && s.score !== null && !isNaN(parseFloat(s.score))) ? parseFloat(s.score) :
+      (s.scores !== undefined && s.scores !== null && !isNaN(parseFloat(s.scores))) ? parseFloat(s.scores) : null;
+    if (scoreVal !== null) {
+      if (scoreVal >= 4.0) pass++;
+      else fail++;
+    }
+  });
+  const dtx = document.getElementById('outcomesChart').getContext('2d');
+  if (window.outcomesChartObj) window.outcomesChartObj.destroy();
+  window.outcomesChartObj = new Chart(dtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Pass', 'Fail'],
+      datasets: [{ data: [pass, fail], backgroundColor: ['#3fbaee', '#e06c75'], borderWidth: 0 }]
+    },
+    options: {
+      aspectRatio: 1,
+      plugins: { legend: { labels: { color: '#fff' } } },
+      cutout: '70%'
+    }
+  });
+}
+
+function groupSessionsForPerformance(sessions, period) {
+  const now = new Date();
+  const groups = {};
+  if (period === 'week') {
+    // Get Monday of current week
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+    const todayIdx = (now - monday) / 86400000;
+    for (let i = 0; i <= todayIdx; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      const label = d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' });
+      groups[label] = [];
+    }
+    sessions.forEach(s => {
+      if (!s.start_time) return;
+      const d = new Date(s.start_time);
+      // Only include sessions in this week up to today
+      if (d >= monday && d <= now) {
+        const label = d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' });
+        if (groups[label]) groups[label].push(s);
+      }
+    });
+  } else if (period === 'month') {
+    // Get first day of current month
+    const first = new Date(now.getFullYear(), now.getMonth(), 1);
+    // Find current week of month (1-based)
+    const currentWeek = Math.floor((now.getDate() + (first.getDay() + 6) % 7 - 1) / 7) + 1;
+    for (let i = 0; i < currentWeek; i++) {
+      groups[`Week ${i + 1}`] = [];
+    }
+    sessions.forEach(s => {
+      if (!s.start_time) return;
+      const d = new Date(s.start_time);
+      if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) {
+        // Week of month (1-based)
+        const week = Math.floor((d.getDate() + (first.getDay() + 6) % 7 - 1) / 7) + 1;
+        const label = `Week ${week}`;
+        if (groups[label]) groups[label].push(s);
+      }
+    });
+  } else if (period === 'year') {
+    for (let i = 0; i <= now.getMonth(); i++) {
+      const label = new Date(now.getFullYear(), i, 1).toLocaleString(undefined, { month: 'short' });
+      groups[label] = [];
+    }
+    sessions.forEach(s => {
+      if (!s.start_time) return;
+      const d = new Date(s.start_time);
+      if (d.getFullYear() === now.getFullYear() && d.getMonth() <= now.getMonth()) {
+        const label = d.toLocaleString(undefined, { month: 'short' });
+        if (groups[label]) groups[label].push(s);
+      }
+    });
+  }
+  return groups;
+}
+
+function getBarGradient(ctx, chartArea) {
+  const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+  gradient.addColorStop(0, 'rgba(63,186,254,0.7)');
+  gradient.addColorStop(1, 'rgba(120, 115, 245, 0.95)');
+  return gradient;
+}
+
+function renderPerformanceGraph(sessions, period = 'week') {
+  const canvas = document.getElementById('performanceChart');
+  const ctx = canvas.getContext('2d');
+  const groups = groupSessionsForPerformance(sessions, period);
+  let labels = Object.keys(groups);
+  let avgScores = labels.map(label => {
+    const group = groups[label];
+    const scores = group.map(s => (s.score !== undefined && s.score !== null && !isNaN(parseFloat(s.score))) ? parseFloat(s.score) : (s.scores !== undefined && s.scores !== null && !isNaN(parseFloat(s.scores))) ? parseFloat(s.scores) : null).filter(s => s !== null);
+    if (scores.length === 0) return 0;
+    return (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(2);
+  });
+  const sessionCounts = labels.map(label => groups[label].length);
+  const totalTimes = labels.map(label => groups[label].reduce((sum, s) => sum + (parseInt(s.total_time_minutes) || 0), 0));
+  // If no data, show a single bar with 0
+  if (labels.length === 0) {
+    labels = ['No Data'];
+    avgScores = [0];
+  }
+  if (window.performanceChartObj) window.performanceChartObj.destroy();
+  window.performanceChartObj = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Avg. Score',
+        data: avgScores,
+        backgroundColor: function(context) {
+          const chart = context.chart;
+          const {ctx, chartArea} = chart;
+          if (!chartArea) return 'rgba(63,186,254,0.7)';
+          return getBarGradient(ctx, chartArea);
+        },
+        borderRadius: 16,
+        borderSkipped: false,
+        barPercentage: 0.7,
+        categoryPercentage: 0.7,
+        shadowOffsetX: 0,
+        shadowOffsetY: 4,
+        shadowBlur: 12,
+        shadowColor: 'rgba(63,186,254,0.25)'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: { padding: { top: 24, bottom: 0, left: 0, right: 0 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(30,32,40,0.98)',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          borderColor: '#3fbaee',
+          borderWidth: 1,
+          padding: 12,
+          titleFont: { size: 16, weight: 'bold', family: 'Segoe UI, Arial, sans-serif' },
+          bodyFont: { size: 15, family: 'Segoe UI, Arial, sans-serif' },
+          callbacks: {
+            label: function(context) {
+              const idx = context.dataIndex;
+              if (labels[idx] === 'No Data') return 'No sessions';
+              return [
+                `Avg. Score: ${avgScores[idx]}`,
+                `Sessions: ${sessionCounts[idx] || 0}`,
+                `Total Time: ${totalTimes[idx] || 0} min`
+              ];
+            }
+          }
+        },
+        datalabels: {
+          anchor: 'end',
+          align: 'end',
+          color: '#fff',
+          font: { weight: 'bold', size: 16 },
+          formatter: function(value, context) {
+            if (labels[context.dataIndex] === 'No Data') return '0';
+            return value;
+          }
+        },
+        title: {
+          display: false
+        }
+      },
+      animation: {
+        duration: 1200,
+        easing: 'easeOutQuart'
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            color: '#bfc9e0',
+            font: { size: 15, weight: 'bold', family: 'Segoe UI, Arial, sans-serif' }
+          }
+        },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.05)' },
+          beginAtZero: true,
+          max: 10,
+          ticks: {
+            color: '#bfc9e0',
+            font: { size: 15, weight: 'bold', family: 'Segoe UI, Arial, sans-serif' },
+            stepSize: 2
+          }
+        }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+}
+document.getElementById('performanceSelect').addEventListener('change', function() {
+  const period = this.value;
+  renderPerformanceGraph(sessionDocsForTable, period);
+});
+// Initial render
+renderPerformanceGraph(sessionDocsForTable, document.getElementById('performanceSelect').value);
+  </script>
+  <script>
+    // Filter by Time Period functionality
+    // const filterBtn = document.getElementById('filterBtn'); // This line is removed
+    // const filterDropdown = document.getElementById('filterDropdown'); // This line is removed
+    // filterBtn.addEventListener('click', function(e) { // This block is removed
+    //   e.stopPropagation(); // This block is removed
+    //   filterDropdown.style.display = filterDropdown.style.display === 'block' ? 'none' : 'block'; // This block is removed
+    // }); // This block is removed
+    // document.addEventListener('click', function() { // This block is removed
+    //   filterDropdown.style.display = 'none'; // This block is removed
+    // }); // This block is removed
+    // filterDropdown.addEventListener('click', function(e) { // This block is removed
+    //   e.stopPropagation(); // This block is removed
+    //   if (e.target.classList.contains('filter-option')) { // This block is removed
+    //     applySessionFilter(e.target.getAttribute('data-period')); // This block is removed
+    //     filterDropdown.style.display = 'none'; // This block is removed
+    //   } // This block is removed
+    // }); // This block is removed
+    function applySessionFilter(period) {
+      // Sample data (should match table rows)
+      const allSessions = [
+        { type: 'Interview', date: '2024-06-10', score: '90%', duration: '45 min', focus: 'Problem Solving' },
+        { type: 'Practice', date: '2024-06-09', score: '80%', duration: '30 min', focus: 'Communication' },
+        { type: 'Resource', date: '2024-06-08', score: '85%', duration: '60 min', focus: 'Leadership' },
+      ];
+      const today = new Date().toISOString().slice(0, 10);
+      const now = new Date();
+      const weekAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+      const monthAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29);
+      let filtered = allSessions;
+      if (period === 'today') {
+        filtered = allSessions.filter(s => s.date === today);
+      } else if (period === 'week') {
+        filtered = allSessions.filter(s => new Date(s.date) >= weekAgo);
+      } else if (period === 'month') {
+        filtered = allSessions.filter(s => new Date(s.date) >= monthAgo);
+      }
+      const tbody = document.getElementById('sessionsTableBody');
+      tbody.innerHTML = '';
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; opacity:0.7;">No sessions found for this period.</td></tr>';
+      } else {
+        filtered.forEach(s => {
+          tbody.innerHTML += `<tr><td>${s.type}</td><td>${s.date}</td><td>${s.score}</td><td>${s.duration}</td></tr>`;
+        });
+      }
+    }
+    // User info logic
+    function updateUserInfo(user) {
+      const userName = document.getElementById('userName');
+      const userAvatarContainer = document.getElementById('userAvatarContainer');
+      if (user && user.name) {
+        userName.textContent = user.name;
+        if (user.photoUrl) {
+          userAvatarContainer.innerHTML = `<img src="${user.photoUrl}" alt="User" class="user-avatar" />`;
+        } else {
+          userAvatarContainer.innerHTML = `<i class='fas fa-user-circle' style='font-size:2rem;'></i>`;
+        }
+      } else {
+        userName.textContent = 'Guest';
+        userAvatarContainer.innerHTML = `<i class='fas fa-user-circle' style='font-size:2rem;'></i>`;
+      }
+    }
+    // Example usage: updateUserInfo({name: 'Alex', photoUrl: '...'}); or updateUserInfo(null);
+    // Call updateUserInfo(null) by default
+    updateUserInfo(null);
+  </script>
+  <script>
+    document.getElementById('exportDashboardBtn').addEventListener('click', function() {
+      // Select the dashboard main content (excluding sidebar)
+      const dashboardContent = document.querySelector('.main-modern');
+      const opt = {
+        margin:       0.2,
+        filename:     'dashboard.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
+      };
+      html2pdf().set(opt).from(dashboardContent).save();
+    });
+  </script>
+  <script>
+    document.getElementById('dashboardSearchInput').addEventListener('input', function() {
+      const query = this.value.toLowerCase();
+
+      // Filter sessions
+      const filteredSessions = allSessionDocsForTable.filter(s =>
+        (s.session_name && s.session_name.toLowerCase().includes(query)) ||
+        (s.start_time && s.start_time.toLowerCase().includes(query)) ||
+        (s.score && s.score.toString().includes(query))
+      );
+      renderSessionsTable(filteredSessions);
+
+      // Filter users (if adminUsers is loaded)
+      if (window.adminUsers && document.getElementById('usersTableBody')) {
+        const filteredUsers = window.adminUsers.filter(u =>
+          (u.name && u.name.toLowerCase().includes(query)) ||
+          (u.email && u.email.toLowerCase().includes(query))
+        );
+        renderUsersTable(filteredUsers, document.getElementById('usersTableBody'));
+      }
+
+      // Filter feedback (if adminFeedback is loaded)
+      if (window.adminFeedback && document.getElementById('feedbackTableBody')) {
+        const filteredFeedback = window.adminFeedback.filter(fb =>
+          (fb.content && fb.content.toLowerCase().includes(query)) ||
+          (fb.user_name && fb.user_name.toLowerCase().includes(query))
+        );
+        renderFeedbackTable(filteredFeedback, document.getElementById('feedbackTableBody'));
+      }
+    });
+  </script>
+</body>
+</html> 

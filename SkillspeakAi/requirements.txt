@@ -1,0 +1,13 @@
+Flask
+Flask-PyMongo
+Flask-JWT-Extended
+bson
+flask-cors
+werkzeug
+requests
+ollama
+pyttsx3
+SpeechRecognition
+openai-whisper
+pymongo
+pyaudio 

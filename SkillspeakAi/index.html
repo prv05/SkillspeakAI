@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSpeak AI - Your AI Mentor & Interviewer</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg"></div>
+    
+    <!-- Floating Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <div class="logo">SkillSpeak AI</div>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#testimonials">Testimonials</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="nav-buttons">
+                <button class="login-btn" onclick="window.location.href='login.html'">Login</button>
+                <button class="cta-button" onclick="window.location.href='signup.html'">Get Started</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Your AI Mentor & Interviewer</h1>
+            <p>Prepare for interviews and exams with real-time AI guidance. Practice with intelligent conversations, get instant feedback, and boost your confidence.</p>
+            <div class="hero-buttons">
+                <a href="signup.html" class="btn-primary">Try Demo</a>
+                <a href="chat.html" class="btn-secondary">Take Up Interview</a>
+            </div>
+        </div>
+        
+        <!-- AI Chat Demo -->
+        <div class="ai-chat-demo">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message ai">Hello! I'm your AI mentor. Ready to practice?</div>
+                <div class="message user">Yes, let's start!</div>
+                <div class="message ai">Great! What would you like to practice today?</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">Why Choose SkillSpeak AI?</h2>
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                    <h3>Voice Interaction</h3>
+                    <p>Practice speaking naturally with our advanced voice recognition technology. Get real-time feedback on your pronunciation and communication skills.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>AI-Powered Questions</h3>
+                    <p>Intelligent question generation based on your field and experience level. No two sessions are ever the same.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Progress Tracking</h3>
+                    <p>Monitor your improvement with detailed analytics and performance insights. Track your strengths and areas for growth.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3>24/7 Availability</h3>
+                    <p>Practice anytime, anywhere. Your AI mentor is always ready to help you prepare for your next interview or exam.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Multiple Scenarios</h3>
+                    <p>Practice different interview types: technical, behavioral, case studies, and more. Be prepared for any situation.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Safe Environment</h3>
+                    <p>Build confidence in a judgment-free zone. Make mistakes, learn, and improve without the pressure of real interviews.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <h2 class="section-title" style="color: white;">How It Works</h2>
+            <div class="steps">
+                <div class="step fade-in">
+                    <div class="step-number">1</div>
+                    <h3>Choose Your Focus</h3>
+                    <p>Select your target role, industry, or exam type to get personalized practice sessions.</p>
+                </div>
+                <div class="step fade-in">
+                    <div class="step-number">2</div>
+                    <h3>Start Conversation</h3>
+                    <p>Begin your practice session with our AI mentor. Speak naturally and answer questions.</p>
+                </div>
+                <div class="step fade-in">
+                    <div class="step-number">3</div>
+                    <h3>Get Feedback</h3>
+                    <p>Receive instant feedback on your responses, communication style, and areas for improvement.</p>
+                </div>
+                <div class="step fade-in">
+                    <div class="step-number">4</div>
+                    <h3>Track Progress</h3>
+                    <p>Monitor your improvement over time with detailed analytics and performance reports.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials" id="testimonials">
+        <div class="container">
+            <h2 class="section-title">What Our Users Say</h2>
+            <div class="testimonial-grid">
+                <div class="testimonial fade-in">
+                    <p>"SkillSpeak AI helped me ace my technical interview. The practice sessions were incredibly realistic and the feedback was spot-on!"</p>
+                    <div class="testimonial-author">- Pratham , Computer science student </div>
+                </div>
+                <div class="testimonial fade-in">
+                    <p>"I was nervous about my first job interview. After practicing with SkillSpeak AI, I felt confident and prepared. Got the job!"</p>
+                    <div class="testimonial-author">- Nandan kumar, Computer science student </div>
+                </div>
+                <div class="testimonial fade-in">
+                    <p>"The AI mentor is amazing! It adapts to my learning style and provides personalized feedback that actually helps me improve."</p>
+                    <div class="testimonial-author">- Nishan gowda, Computer science student </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="footer-content">
+            <h3>Ready to Transform Your Interview Skills?</h3>
+            <p>Join thousands of professionals who are already using SkillSpeak AI to advance their careers.</p>
+            <div class="hero-buttons">
+                <a href="signup.html" class="btn-primary">Start Free Trial</a>
+                <a href="signup.html" class="btn-secondary">Watch Demo</a>
+            </div>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+            </div>
+            <p>&copy; 2024 SkillSpeak AI. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html> 

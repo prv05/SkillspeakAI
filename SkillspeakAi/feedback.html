@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Skill Speak AI - Feedback</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body class="dark">
+  <script>
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      window.location.href = "login.html";
+    }
+  </script>
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar-modern">
+      <div class="sidebar-logo">SkillSpeak</div>
+      <ul class="sidebar-menu">
+        <li class="sidebar-item" onclick="window.location.href='dashboard.html'"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></li>
+        <li class="sidebar-item" onclick="window.location.href='chat.html'"><i class="fas fa-comments"></i> <span>Chat</span></li>
+        <li class="sidebar-item" onclick="window.location.href='profile.html'"><i class="fas fa-user"></i> <span>Profile</span></li>
+        <li class="sidebar-item active"><i class="fas fa-comment-dots"></i> <span>Feedback</span></li>
+        <li class="sidebar-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-modern">
+      <!-- Top Bar -->
+      <div class="topbar">
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search feedback..." />
+        </div>
+        <div class="topbar-actions">
+          <select class="topbar-btn" id="sortFeedbackSelect" style="min-width:120px;">
+            <option value="latest">Latest</option>
+            <option value="oldest">Oldest</option>
+          </select>
+          <button class="topbar-btn" id="exportFeedbackBtn"><i class="fas fa-download"></i> Export</button>
+          <div class="user-info" onclick="window.location.href='profile.html'" style="cursor: pointer;">
+            <span id="userAvatarContainer">
+              <i class="fas fa-user-circle" style="font-size:2rem;"></i>
+            </span>
+            <span class="user-name" id="userName">Guest</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Title -->
+      <h1 class="dashboard-title">Feedback Center</h1>
+      <p class="dashboard-subtitle">View AI feedback from your sessions and share your thoughts with us</p>
+
+      <!-- Feedback Tabs -->
+      <div class="feedback-tabs">
+        <button class="tab-btn active" onclick="showTab('ai-feedback')">🤖 AI Feedback</button>
+        <button class="tab-btn" onclick="showTab('submit-feedback')">📝 Submit Feedback</button>
+        <button class="tab-btn" onclick="showTab('improvements')">📈 Improvements</button>
+      </div>
+
+      <!-- AI Feedback Tab -->
+      <div id="ai-feedback" class="tab-content">
+        <div class="analytics-card">
+          <div class="analytics-header">
+            <span>🤖 AI Session Feedback</span>
+            <select>
+              <option>All time</option>
+              <option>This month</option>
+              <option>This week</option>
+            </select>
+          </div>
+          <div class="ai-feedback-grid" id="aiFeedbackGrid">
+            <!-- Empty State -->
+            <div class="empty-state">
+              <div class="icon">🤖</div>
+              <h3>No AI feedback yet</h3>
+              <p>Start a chat session to receive AI feedback and improvement suggestions</p>
+              <button class="btn" style="margin-top: 1rem;" onclick="window.location.href='chat.html'">Start Session</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Feedback Tab -->
+      <div id="submit-feedback" class="tab-content" style="display: none;">
+        <div class="analytics-card">
+          <div class="analytics-header">
+            <span>📝 Submit Feedback</span>
+          </div>
+          <p style="margin-bottom: 2rem; opacity: 0.8;">Help us improve Skill Speak AI by sharing your experience and suggestions.</p>
+          <!-- Removed old feedbackForm and feedbackResult UI -->
+          <!-- Only show the new suggestion form below -->
+          <h3 style="margin-bottom:0.5rem;">💡 Suggest a Feature or Improvement</h3>
+          <form id="suggestForm" class="feedback-form" style="flex-direction:column;gap:1rem;max-width:600px;">
+            <textarea id="suggestionText" placeholder="Describe your suggestion or feature request in detail..." rows="4" style="padding:0.75rem 1rem;border:1px solid rgba(255,255,255,0.2);border-radius:8px;background:#23262f;color:#fff;font-size:1rem;font-family:inherit;resize:vertical;"></textarea>
+            <button type="submit" style="align-self:flex-start;">Submit Suggestion</button>
+            <span id="suggestionMsg" style="color:#4caf50;display:none;font-size:1rem;margin-top:0.5rem;">Thank you for your suggestion!</span>
+          </form>
+          <!-- User Suggestions Progress Table -->
+          <div id="userSuggestionsProgress" style="margin-top:2.5rem;">
+            <h3 style="margin-bottom:1rem;">Your Submitted Suggestions & Progress</h3>
+            <table class="activity-table" style="max-width:600px;">
+              <thead>
+                <tr><th>Suggestion</th><th>Status</th><th>Date</th></tr>
+              </thead>
+              <tbody id="userSuggestionsTableBody">
+                <!-- Dynamic content will be loaded here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Improvements Tab -->
+      <div id="improvements" class="tab-content" style="display: none;">
+        <div class="analytics-card">
+          <div class="analytics-header">
+            <span>📈 Suggested Improvements</span>
+          </div>
+          <div class="empty-state">
+            <div class="icon">📈</div>
+            <h3>No improvement suggestions yet</h3>
+            <p>Complete more sessions to receive personalized improvement recommendations</p>
+            <button class="btn" style="margin-top: 1rem;" onclick="window.location.href='dashboard.html'">Start Practicing</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      loadUserInfo();
+      loadAIFeedback();
+      loadUserSuggestionsProgress();
+    });
+
+    function loadUserInfo() {
+      const userName = localStorage.getItem("userName") || "Guest";
+      document.getElementById("userName").innerText = userName;
+      // Show avatar with first letter of user name
+      const firstLetter = userName.charAt(0).toUpperCase();
+      document.getElementById("userAvatarContainer").innerHTML = `<span style=\"display:inline-flex;align-items:center;justify-content:center;width:2.2rem;height:2.2rem;border-radius:50%;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-size:1.2rem;font-weight:bold;\">${firstLetter}</span>`;
+    }
+
+    async function loadAIFeedback() {
+      const jwtToken = localStorage.getItem('jwtToken');
+      if (!jwtToken) return;
+      const userName = localStorage.getItem("userName") || "anonymous";
+      const res = await fetch(`${API_BASE}/feedback/list?user_id=${encodeURIComponent(userName)}`, {
+        headers: { 'Authorization': 'Bearer ' + jwtToken }
+      });
+      const data = await res.json();
+      const allFeedback = data.feedback || [];
+      const aiFeedbacks = allFeedback.filter(fb => fb.type === 'ai_feedback' && fb.ai_feedback);
+      const improvements = allFeedback.filter(fb => fb.type === 'improvement' && fb.improvement);
+      // Render AI Feedback
+      const aiFeedbackGrid = document.getElementById('aiFeedbackGrid');
+      aiFeedbackGrid.innerHTML = '';
+      if (aiFeedbacks.length === 0) {
+        aiFeedbackGrid.innerHTML = `<div class="empty-state"><div class="icon">🤖</div><h3>No AI feedback yet</h3></div>`;
+      } else {
+        aiFeedbacks.forEach(fb => {
+          aiFeedbackGrid.innerHTML += `<div class="feedback-card" data-date="${fb.created_at || ''}"><div class="feedback-header"><span class="feedback-title">AI Feedback</span></div><div class="feedback-content">${fb.ai_feedback}</div></div>`;
+        });
+      }
+      // Render Improvements
+      const improvementsTab = document.getElementById('improvements');
+      improvementsTab.innerHTML = '';
+      if (improvements.length === 0) {
+        improvementsTab.innerHTML = `<div class="analytics-card"><div class="analytics-header"><span>📈 Suggested Improvements</span></div><div class="empty-state"><div class="icon">📈</div><h3>No improvement suggestions yet</h3></div></div>`;
+      } else {
+        improvementsTab.innerHTML = `<div class="analytics-card"><div class="analytics-header"><span>📈 Suggested Improvements</span><span style="margin-left:2rem;font-size:1rem;opacity:0.7;">Total: ${improvements.length}</span></div>` +
+          improvements.map((fb, idx) => `<div class="feedback-card" data-date="${fb.created_at || ''}"><div class="feedback-header"><span class="feedback-title">Improvement #${idx+1}</span></div><div class="feedback-content">${fb.improvement}</div></div>`).join('') +
+          `</div>`;
+      }
+      // After rendering, call sortFeedbackCards with current value
+      sortFeedbackCards(document.getElementById('sortFeedbackSelect').value);
+    }
+
+    // Tab switching functionality
+    function showTab(tabName) {
+      // Hide all tab contents
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabContents.forEach(content => {
+        content.style.display = 'none';
+      });
+      
+      // Remove active class from all tab buttons
+      const tabButtons = document.querySelectorAll('.tab-btn');
+      tabButtons.forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // Show selected tab content
+      document.getElementById(tabName).style.display = 'block';
+      
+      // Add active class to clicked button
+      event.target.classList.add('active');
+    }
+
+    // Feedback form handler
+    document.addEventListener('DOMContentLoaded', function() {
+      const feedbackForm = document.getElementById('feedbackForm');
+      if (feedbackForm) {
+        feedbackForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const input = this.input.value;
+          const resultElem = document.getElementById('feedbackResult');
+          
+          if (!input.trim()) {
+            resultElem.innerText = "Please enter your feedback/suggestion.";
+            return;
+          }
+          
+          resultElem.innerText = "Generating AI feedback...";
+          
+          try {
+            // First, submit the feedback to admin
+            const submitResponse = await fetch(`${API_BASE}/feedback`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ 
+                input: input,
+                user_id: localStorage.getItem("userName") || "anonymous"
+              })
+            });
+            
+            if (!submitResponse.ok) {
+              throw new Error('Failed to submit feedback');
+            }
+            
+            // Then generate AI feedback
+            const aiResponse = await fetch(`${API_BASE}/feedback/generate`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ input })
+            });
+            
+            if (!aiResponse.ok) {
+              throw new Error('Failed to generate AI feedback');
+            }
+            
+            const data = await aiResponse.json();
+            
+            // Display the AI feedback in a formatted way
+            resultElem.innerHTML = `
+              <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                <h4 style="color: var(--primary); margin-bottom: 0.5rem;">AI Analysis</h4>
+                <p><strong>Summary:</strong> ${data.feedback.summary}</p>
+                <p><strong>Score:</strong> ${data.feedback.score}/10</p>
+                <p><strong>Suggestions:</strong></p>
+                <ul style="margin-left: 1rem;">
+                  ${data.feedback.suggestions.map(s => `<li>${s}</li>`).join('')}
+                </ul>
+                <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8;">
+                  ✅ Your feedback has been submitted to admin for review!
+                </p>
+              </div>
+            `;
+            
+            // Clear the form
+            this.input.value = '';
+            
+          } catch (error) {
+            resultElem.innerHTML = `
+              <div style="background: rgba(255,0,0,0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem; color: #ff6b6b;">
+                Error: ${error.message}. Please try again.
+              </div>
+            `;
+          }
+        });
+      }
+    });
+  </script>
+
+  <style>
+    /* Feedback specific styles */
+    .feedback-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 1rem;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: inherit;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+
+    .tab-btn:hover {
+      background: rgba(63, 186, 254, 0.1);
+      color: var(--primary);
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .ai-feedback-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .analytics-card {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      box-shadow: 0 4px 24px 0 rgba(0,0,0,0.10);
+      padding: 2rem 2rem 1rem 2rem;
+      margin-bottom: 2rem;
+    }
+    .feedback-card {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 2rem 2rem 1.5rem 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 12px 0 rgba(63,186,254,0.07);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .feedback-card:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 6px 24px 0 rgba(63,186,254,0.13);
+    }
+    .feedback-header {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      letter-spacing: 0.5px;
+    }
+    .feedback-content {
+      font-size: 1.08rem;
+      color: #e0e6ed;
+      line-height: 1.7;
+      margin-bottom: 0.5rem;
+    }
+
+    .feedback-date {
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+
+    .feedback-score {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .score-badge {
+      background: var(--gradient);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+
+    .feedback-content {
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+
+    .feedback-tags {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .feedback-tag {
+      background: rgba(63, 186, 254, 0.1);
+      color: var(--primary);
+      padding: 0.25rem 0.5rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+    }
+
+    .feedback-form {
+      max-width: 600px;
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .feedback-form input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      background: #23262f;
+      color: #fff;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .feedback-form input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(63, 186, 254, 0.2);
+    }
+
+    .feedback-form button {
+      padding: 0.75rem 1.5rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+    .feedback-form button:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .feedback-result {
+      background: #23262f;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 1rem;
+      font-size: 0.9rem;
+      color: #fff;
+      white-space: pre-wrap; /* Preserve whitespace and break lines */
+      word-wrap: break-word; /* Break long words */
+      overflow-wrap: break-word; /* Break long words */
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      opacity: 0.7;
+    }
+
+    .empty-state .icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+      margin-bottom: 0.5rem;
+      color: var(--primary);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .feedback-tabs {
+        flex-direction: column;
+      }
+      
+      .ai-feedback-grid {
+        grid-template-columns: 1fr;
+      }
+      .feedback-form {
+        flex-direction: column;
+      }
+      .feedback-form input, .feedback-form button {
+        width: 100%;
+      }
+    }
+  </style>
+
+  <script>
+    // Tab functionality
+    function showTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.style.display = 'none';
+      });
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.getElementById(tabName).style.display = 'block';
+      event.target.classList.add('active');
+    }
+
+    // Submit feedback
+    function submitFeedback(event) {
+      event.preventDefault();
+      const type = document.getElementById('feedbackType').value;
+      const title = document.getElementById('feedbackTitle').value;
+      const description = document.getElementById('feedbackDescription').value;
+      const email = document.getElementById('feedbackEmail').value;
+      if (!type || !title || !description) {
+        alert('Please fill in all required fields');
+        return;
+      }
+      alert('Thank you for your feedback! We appreciate your input.');
+      document.getElementById('feedbackType').value = '';
+      document.getElementById('feedbackTitle').value = '';
+      document.getElementById('feedbackDescription').value = '';
+      document.getElementById('feedbackEmail').value = '';
+    }
+
+    // User info logic
+    function updateUserInfo(user) {
+      const userName = document.getElementById('userName');
+      const userAvatarContainer = document.getElementById('userAvatarContainer');
+      if (user && user.name) {
+        userName.textContent = user.name;
+        if (user.photoUrl) {
+          userAvatarContainer.innerHTML = `<img src="${user.photoUrl}" alt="User" class="user-avatar" />`;
+        } else {
+          userAvatarContainer.innerHTML = `<i class='fas fa-user-circle' style='font-size:2rem;'></i>`;
+        }
+      } else {
+        userName.textContent = 'Guest';
+        userAvatarContainer.innerHTML = `<i class='fas fa-user-circle' style='font-size:2rem;'></i>`;
+      }
+    }
+    // Example usage: updateUserInfo({name: 'Alex', photoUrl: '...'}); or updateUserInfo(null);
+    // Call updateUserInfo(null) by default
+    updateUserInfo(null);
+  </script>
+  <script src="script.js"></script>
+  <script>
+    document.getElementById("feedbackForm").onsubmit = function(e) {
+      feedbackHandler.call(this, e, document.getElementById("feedbackResult"));
+    };
+  </script>
+  <script>
+    document.getElementById('exportFeedbackBtn').addEventListener('click', function() {
+      // Gather visible AI feedback and improvements
+      const aiCards = Array.from(document.querySelectorAll('#aiFeedbackGrid .feedback-card'));
+      const improvementCards = Array.from(document.querySelectorAll('#improvements .feedback-card'));
+      let html = `
+        <style>
+          body, div, h2, p, b { color: #222 !important; background: #fff !important; }
+          .pdf-logo { position: absolute; top: 0.5in; right: 0.5in; width: 120px; }
+          .pdf-header { position: relative; min-height: 60px; }
+        </style>
+        <div class="pdf-header">
+          <img src="logo.png" class="pdf-logo" alt="SkillSpeak AI Logo" />
+        </div>
+        <h2 style='color:#3fbaee;'>AI Feedback</h2>
+      `;
+      if (aiCards.length === 0) {
+        html += '<p>No AI feedback available.</p>';
+      } else {
+        aiCards.forEach(card => {
+          html += `<div style='margin-bottom:1.5rem;'><b>Feedback:</b> ${card.querySelector('.feedback-content').innerText}</div>`;
+        });
+      }
+      html += `<h2 style='color:#3fbaee;margin-top:2rem;'>Improvements</h2>`;
+      if (improvementCards.length === 0) {
+        html += '<p>No improvements available.</p>';
+      } else {
+        improvementCards.forEach(card => {
+          html += `<div style='margin-bottom:1.5rem;'><b>Improvement:</b> ${card.querySelector('.feedback-content').innerText}</div>`;
+        });
+      }
+      // Create a temporary div for export
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = html;
+      document.body.appendChild(tempDiv);
+      html2pdf().set({
+        margin: 0.3,
+        filename: 'feedback.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+      }).from(tempDiv).save().then(() => tempDiv.remove());
+    });
+  </script>
+  <script>
+    // Suggestion form handler
+    const suggestForm = document.getElementById('suggestForm');
+    if (suggestForm) {
+      suggestForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const suggestion = document.getElementById('suggestionText').value.trim();
+        const msgElem = document.getElementById('suggestionMsg');
+        msgElem.style.display = 'none';
+        if (!suggestion) {
+          msgElem.style.display = 'inline';
+          msgElem.style.color = '#ff6b6b';
+          msgElem.textContent = 'Please enter your suggestion.';
+          return;
+        }
+        try {
+          const res = await fetch(`${API_BASE}/feedback/suggest`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: localStorage.getItem('userName') || 'anonymous',
+              user_name: localStorage.getItem('userName') || '',
+              suggestion
+            })
+          });
+          if (!res.ok) throw new Error('Failed to submit suggestion');
+          msgElem.style.display = 'inline';
+          msgElem.style.color = '#4caf50';
+          msgElem.textContent = 'Thank you for your suggestion!';
+          document.getElementById('suggestionText').value = '';
+        } catch (err) {
+          msgElem.style.display = 'inline';
+          msgElem.style.color = '#ff6b6b';
+          msgElem.textContent = 'Error: ' + err.message;
+        }
+      });
+    }
+  </script>
+  <script>
+    // Load user's own suggestions and progress
+    async function loadUserSuggestionsProgress() {
+      const userId = localStorage.getItem('userName') || 'anonymous';
+      try {
+        const res = await fetch(`${API_BASE}/feedback/suggest/user/${encodeURIComponent(userId)}`);
+        const data = await res.json();
+        const suggestions = data.suggest_feedback || [];
+        const tbody = document.getElementById('userSuggestionsTableBody');
+        tbody.innerHTML = '';
+        if (!suggestions.length) {
+          tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;opacity:0.7;">No suggestions submitted yet.</td></tr>';
+          return;
+        }
+        suggestions.forEach(sg => {
+          const row = tbody.insertRow();
+          row.insertCell().innerText = sg.suggestion || '';
+          row.insertCell().innerText = sg.status ? sg.status.charAt(0).toUpperCase() + sg.status.slice(1) : '';
+          let dateStr = '';
+          if (sg.created_at) {
+            if (typeof sg.created_at === 'string') {
+              dateStr = sg.created_at.slice(0, 10);
+            } else if (sg.created_at.$date) {
+              dateStr = sg.created_at.$date.slice(0, 10);
+            }
+          }
+          row.insertCell().innerText = dateStr;
+        });
+      } catch (err) {
+        const tbody = document.getElementById('userSuggestionsTableBody');
+        tbody.innerHTML = '<tr><td colspan="3">Failed to load suggestions</td></tr>';
+      }
+    }
+  </script>
+</body>
+</html> 
