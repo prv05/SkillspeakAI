@@ -22,7 +22,7 @@ SkillSpeak AI is a comprehensive interview training application that leverages a
 
 Watch the full demo video to see SkillSpeak AI in action:
 
-📹 **[Watch Demo Video on Google Drive](YOUR_GOOGLE_DRIVE_LINK_HERE)**
+📹 **[Watch Demo Video on Google Drive](https://drive.google.com/file/d/1FZqjrOKiA44FxBaGDkaRsGVdJUwMaAb7/view?usp=drive_link)**
 
 
 
