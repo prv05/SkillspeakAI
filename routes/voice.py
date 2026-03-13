@@ -4,7 +4,7 @@ from models.chat import save_message, get_chat_history
 from models.session import get_sessions_by_user
 from utils.jwt_utils import token_required
 import re
-import ollama
+from datetime import datetime
 
 voice_bp = Blueprint('voice', __name__)
 
@@ -14,11 +14,8 @@ def get_welcome_prompt():
 
 def ask_question(role):
     prompt = f"Generate one clear interview question for a candidate applying for a {role} role. Only return the question."
-    response = ollama.chat(
-        model="mistral",
-        messages=[{"role": "user", "content": prompt}]
-    )
-    question = response['message']['content'].strip().replace('\n', ' ')
+    response = get_ai_response(prompt)
+    question = response.strip().replace('\n', ' ')
     return question
 
 def evaluate_answer(question, answer):
@@ -28,11 +25,7 @@ def evaluate_answer(question, answer):
         f"Question: {question}\nAnswer: {answer}\n\n"
         f"Respond in this format: Score: X/10\nFeedback: <your feedback>"
     )
-    response = ollama.chat(
-        model="mistral",
-        messages=[{"role": "user", "content": prompt}]
-    )
-    content = response['message']['content'].strip()
+    content = get_ai_response(prompt).strip()
     score_match = re.search(r'Score:\s*(\d+)/10', content)
     feedback_match = re.search(r'Feedback:\s*(.*)', content)
     score = int(score_match.group(1)) if score_match else 0
@@ -67,8 +60,10 @@ def send_message():
         session_id=session_id,
         chat_id=chat_id
     )
-    # Get AI response from Ollama
+    # Get AI response from configured AI provider (Groq)
     ai_response = get_ai_response(message)
+    if ai_response.startswith('AI error:') or ai_response.startswith('AI HTTP error:') or ai_response.startswith('AI network error:'):
+        return jsonify({'error': ai_response}), 502
     save_message(
         user_id=user_id,
         role='ai',
@@ -141,7 +136,6 @@ def run_voice_interview():
     import speech_recognition as sr
     import pyttsx3
     import time
-    import ollama
     import re
     recognizer = sr.Recognizer()
     def speak(text):

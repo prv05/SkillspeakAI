@@ -41,6 +41,8 @@ def generate_feedback():
         user_id = data.get('user_id', 'anonymous')
         # Get AI feedback using Ollama
         ai_response = get_ai_feedback(data['input'])
+        if ai_response.startswith('AI error:') or ai_response.startswith('AI HTTP error:') or ai_response.startswith('AI network error:'):
+            return jsonify({'error': ai_response}), 502
         # Parse AI response
         try:
             feedback_data = json.loads(ai_response)

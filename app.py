@@ -1,17 +1,29 @@
 from flask import Flask, render_template, make_response
 from flask_cors import CORS
 from mongo_client import mongo
-from config import MONGO_URI, UPLOAD_FOLDER
+from config import MONGO_URI, MONGO_DBNAME, UPLOAD_FOLDER
 import os
 from flask_jwt_extended import JWTManager
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson import ObjectId
 from datetime import datetime
+from urllib.parse import urlsplit, urlunsplit
+
+
+def ensure_mongo_db_in_uri(uri, db_name):
+    if not uri or not db_name:
+        return uri
+    parsed = urlsplit(uri)
+    # If URI already includes /database path, keep it as-is.
+    if parsed.path and parsed.path not in ('', '/'):
+        return uri
+    return urlunsplit((parsed.scheme, parsed.netloc, f'/{db_name}', parsed.query, parsed.fragment))
 
 app = Flask(__name__)
 CORS(app, origins=["http://127.0.0.1:5500", "http://127.0.0.1:5501", "http://localhost:5500", "http://localhost:5501"], supports_credentials=True)  # Allow multiple frontend origins
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config["MONGO_URI"] = "mongodb://localhost:27017/skillspeak_ai"
+app.config["MONGO_URI"] = ensure_mongo_db_in_uri(MONGO_URI, MONGO_DBNAME)
+app.config["MONGO_DBNAME"] = MONGO_DBNAME
 
 # JWT config
 app.config["JWT_SECRET_KEY"] = "your-secret-key"  # Use a strong, random key in production!

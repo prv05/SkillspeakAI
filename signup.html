@@ -600,9 +600,6 @@
                 </button>
             </form>
             <script src="script.js"></script>
-            <script>
-              document.getElementById("signupForm").onsubmit = signupHandler;
-            </script>
 
             <div class="divider">
                 <span>or sign up with</span>
@@ -640,68 +637,39 @@
             }
         }
 
-        // Form handling
+        // Form handling using real backend signup API
         function handleSignup(e) {
             e.preventDefault();
-            
-            const firstName = document.getElementById('firstName').value;
-            const lastName = document.getElementById('lastName').value;
-            const email = document.getElementById('email').value;
+
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const terms = document.getElementById('terms').checked;
-            
-            const signupBtn = document.getElementById('signupBtn');
-            const signupText = document.getElementById('signupText');
-            const loading = document.getElementById('loading');
+
             const errorMessage = document.getElementById('errorMessage');
             const successMessage = document.getElementById('successMessage');
 
-            // Hide previous messages
             errorMessage.style.display = 'none';
             successMessage.style.display = 'none';
 
-            // Validation
-            if (!firstName || !lastName || !email || !password || !confirmPassword) {
+            if (!name || !email || !password || !confirmPassword) {
                 errorMessage.textContent = 'Please fill in all required fields';
                 errorMessage.style.display = 'block';
                 return;
             }
-
             if (password !== confirmPassword) {
                 errorMessage.textContent = 'Passwords do not match';
                 errorMessage.style.display = 'block';
                 return;
             }
-
-            if (password.length < 6) {
-                errorMessage.textContent = 'Password must be at least 6 characters long';
-                errorMessage.style.display = 'block';
-                return;
-            }
-
             if (!terms) {
                 errorMessage.textContent = 'Please agree to the Terms of Service and Privacy Policy';
                 errorMessage.style.display = 'block';
                 return;
             }
 
-            // Show loading
-            signupText.style.display = 'none';
-            loading.style.display = 'block';
-            signupBtn.disabled = true;
-
-            // Simulate successful signup (demo mode)
-            setTimeout(() => {
-                successMessage.textContent = 'Account created successfully! Redirecting to dashboard...';
-                successMessage.style.display = 'block';
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 2000);
-                signupText.style.display = 'block';
-                loading.style.display = 'none';
-                signupBtn.disabled = false;
-            }, 1500);
+            signupHandler.call(document.getElementById('signupForm'), e);
         }
 
         // Initialize everything when page loads

@@ -23,14 +23,13 @@ net start MongoDB
 mongosh "mongodb://localhost:27017"
 ```
 
-#### 3. Start Ollama (for AI features)
+#### 3. Configure Groq API (for AI features)
 ```bash
-# Start Ollama server
-ollama serve
+# Windows PowerShell
+$env:GROQ_API_KEY="your_groq_api_key_here"
 
-# In another terminal, pull models
-ollama pull mistral
-ollama pull llama3
+# Optional: choose Groq model
+$env:GROQ_MODEL="llama-3.3-70b-versatile"
 ```
 
 #### 4. Run the Backend
@@ -52,7 +51,7 @@ python app.py
 ## 📋 Required Services
 
 - ✅ **MongoDB** - Database (default: localhost:27017)
-- ✅ **Ollama** - AI Model Server (default: localhost:11434)
+- ✅ **Groq API** - Cloud LLM provider (set GROQ_API_KEY)
 - ✅ **Flask Backend** - API Server (default: localhost:5000)
 
 ## 🔧 Troubleshooting
@@ -62,9 +61,9 @@ python app.py
 net start MongoDB
 ```
 
-**Ollama not running?**
+**Groq API key missing?**
 ```bash
-ollama serve
+set GROQ_API_KEY=your_groq_api_key_here
 ```
 
 **Port 5000 in use?**

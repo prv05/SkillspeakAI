@@ -63,7 +63,7 @@ Watch the full demo video to see SkillSpeak AI in action:
 - **Flask-CORS** - Cross-origin resource sharing
 
 ### AI & Speech
-- **Ollama** - Local AI model server (Mistral/Llama3)
+- **Groq API** - LLM inference API (OpenAI-compatible endpoint)
 - **SpeechRecognition** - Speech-to-text conversion
 - **pyttsx3** - Text-to-speech engine
 - **OpenAI Whisper** - Advanced speech recognition
@@ -77,7 +77,7 @@ Watch the full demo video to see SkillSpeak AI in action:
 Before you begin, ensure you have the following installed:
 - Python 3.8 or higher
 - MongoDB (local or Atlas)
-- Ollama (for AI features)
+- Groq API key (for AI features)
 - Microphone (for voice interviews)
 
 ## 🚀 Installation
@@ -115,17 +115,16 @@ sudo systemctl start mongod
 
 The application will automatically create the database at: `mongodb://localhost:27017/skillspeak_ai`
 
-### 4. Install and Setup Ollama
+### 4. Configure Groq API
 
-1. Download Ollama from [https://ollama.ai](https://ollama.ai)
-2. Start Ollama server:
+1. Create/get your API key from Groq console.
+2. Set environment variable:
    ```bash
-   ollama serve
-   ```
-3. Pull the required AI models:
-   ```bash
-   ollama pull mistral
-   ollama pull llama3
+   # Windows PowerShell
+   $env:GROQ_API_KEY="your_groq_api_key_here"
+
+   # Optional model override
+   $env:GROQ_MODEL="llama-3.3-70b-versatile"
    ```
 
 ### 5. Configuration
@@ -140,19 +139,14 @@ JWT_SECRET_KEY = "your-secret-key-here"  # Change this!
 
 ### Running the Application
 
-**Option 1: Quick Start (3 Terminals)**
+**Option 1: Quick Start (2 Terminals)**
 
 Terminal 1 - Backend:
 ```bash
 python app.py
 ```
 
-Terminal 2 - AI Server:
-```bash
-ollama serve
-```
-
-Terminal 3 - Frontend:
+Terminal 2 - Frontend:
 ```bash
 python -m http.server 5500
 ```
@@ -199,7 +193,7 @@ skillspeak-ai/
 │   └── feedback.py            # Feedback endpoints
 │
 ├── utils/                      # Utility functions
-│   ├── ai_utils.py            # AI/Ollama integration
+│   ├── ai_utils.py            # AI/Groq integration
 │   └── jwt_utils.py           # JWT authentication helpers
 │
 ├── static/                     # Static assets (optional)
@@ -271,9 +265,10 @@ pip install pipwin
 pipwin install pyaudio
 ```
 
-### Ollama Not Responding
-- Ensure Ollama is running: `ollama serve`
-- Check if models are downloaded: `ollama list`
+### Groq API Not Responding
+- Ensure `GROQ_API_KEY` is set in your environment
+- Verify outbound HTTPS access to `https://api.groq.com`
+- Optionally set `GROQ_MODEL` to a supported model name
 
 ### Microphone Not Working
 - Check browser permissions for microphone access
@@ -297,7 +292,7 @@ pipwin install pyaudio
 
 ## 🙏 Acknowledgments
 
-- [Ollama](https://ollama.ai) for local AI models
+- [Groq](https://groq.com/) for fast LLM inference
 - [Flask](https://flask.palletsprojects.com/) community
 - [MongoDB](https://www.mongodb.com/) documentation
 - All contributors and users

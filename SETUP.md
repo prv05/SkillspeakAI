@@ -4,7 +4,7 @@
 
 1. **Python 3.8+** installed
 2. **MongoDB** installed and running locally
-3. **Ollama** installed and running (for AI features)
+3. **Groq API key** available (for AI features)
 
 ## Step 1: Install Python Dependencies
 
@@ -42,24 +42,21 @@ sudo systemctl status mongod
 
 The database will be created automatically at: `mongodb://localhost:27017/skillspeak_ai`
 
-## Step 3: Setup Ollama (AI Model Server)
+## Step 3: Configure Groq API
 
-1. **Install Ollama:**
-   - Download from: https://ollama.ai
-   - Follow installation instructions for your OS
+1. Generate an API key from your Groq account.
 
-2. **Start Ollama:**
+2. Set the API key as an environment variable:
    ```bash
-   ollama serve
+   # Windows PowerShell
+   $env:GROQ_API_KEY="your_groq_api_key_here"
    ```
 
-3. **Pull required models:**
+3. Optional model override:
    ```bash
-   ollama pull mistral
-   ollama pull llama3
+   # Windows PowerShell
+   $env:GROQ_MODEL="llama-3.3-70b-versatile"
    ```
-
-   The app uses `mistral` model by default, but `llama3` is also available.
 
 ## Step 4: Run the Flask Backend
 
@@ -117,10 +114,10 @@ python -m http.server 5500
 - Check if port 27017 is available
 - Verify MongoDB service is started
 
-### Ollama Connection Error
-- Ensure Ollama is running: Check http://localhost:11434
-- Verify models are pulled: `ollama list`
-- Check if port 11434 is available
+### Groq Connection Error
+- Ensure `GROQ_API_KEY` is set in your shell before running the backend
+- Verify internet access to `https://api.groq.com`
+- Confirm `GROQ_MODEL` value is a supported model
 
 ### PyAudio Installation Issues (Windows)
 ```bash
@@ -145,14 +142,10 @@ pip install -r requirements.txt
 # 2. Start MongoDB (if not running automatically)
 net start MongoDB
 
-# 3. Start Ollama (in a separate terminal)
-ollama serve
+# 3. Set Groq API key
+set GROQ_API_KEY=your_groq_api_key_here
 
-# 4. Pull AI models (in a separate terminal)
-ollama pull mistral
-ollama pull llama3
-
-# 5. Run the Flask backend
+# 4. Run the Flask backend
 python app.py
 ```
 
@@ -163,6 +156,7 @@ You can set these environment variables if needed:
 - `MONGO_URI` - MongoDB connection string (default: `mongodb://localhost:27017/skillspeak_ai`)
 - `JWT_SECRET` - JWT secret key (default: `supersecretjwtkey`)
 - `UPLOAD_FOLDER` - Folder for uploads (default: `uploads/`)
-- `OLLAMA_URL` - Ollama server URL (default: `http://localhost:11434`)
-- `OLLAMA_MODEL` - Default AI model (default: `mistral`)
+- `GROQ_API_KEY` - Required Groq API key
+- `GROQ_MODEL` - Optional model override (default: `llama-3.3-70b-versatile`)
+- `GROQ_API_URL` - Optional endpoint override (default: `https://api.groq.com/openai/v1/chat/completions`)
 

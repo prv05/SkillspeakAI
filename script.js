@@ -39,14 +39,21 @@ async function apiFetch(endpoint, { method = "GET", body = null, isForm = false 
       body: isForm ? body : body ? JSON.stringify(body) : null,
     });
     if (res.status === 401) {
+      // Do not redirect away for auth endpoints; let caller display the real message.
+      if (endpoint.startsWith("/auth/")) {
+        const authData = await res.json().catch(() => ({}));
+        throw new Error(authData.error || "Unauthorized");
+      }
+
       clearAuth();
-      const isLanding = window.location.pathname.includes("index.html") || window.location.pathname === "/" || window.location.pathname === "/index";
-      if (!isLanding) {
+      const path = window.location.pathname.toLowerCase();
+      const isPublicPage = path.includes("index.html") || path.endsWith("/") || path.endsWith("/index") || path.includes("login.html") || path.includes("signup.html");
+      if (!isPublicPage) {
         window.location.href = "login.html";
       } else {
-        console.warn("Unauthorized on landing page — ignored.");
+        console.warn("Unauthorized on public page — ignored.");
       }
-      return {}; // prevent further error
+      throw new Error("Unauthorized");
     }
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "API error");
@@ -92,8 +99,23 @@ window.signupHandler = async function (e) {
   const name = this.name.value, email = this.email.value, password = this.password.value;
   try {
     await apiFetch("/auth/signup", { method: "POST", body: { name, email, password } });
-    localStorage.setItem("userEmail", email);
-    window.location.href = "login.html";
+    // Auto-login after signup to avoid bouncing user back to signin.
+    const data = await apiFetch("/auth/login", { method: "POST", body: { email, password } });
+    setAuth(data.token, data.role);
+    if (data.user && data.user.name) {
+      localStorage.setItem("userName", data.user.name);
+    }
+    if (data.user && data.user.email) {
+      localStorage.setItem("userEmail", data.user.email);
+    }
+    if (data.user && data.user.id) {
+      localStorage.setItem("userId", data.user.id);
+    }
+    if (data.role === 'admin') {
+      window.location.href = "admin.html";
+    } else {
+      window.location.href = "dashboard.html";
+    }
   } catch {}
 };
 
@@ -809,7 +831,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (totalSuggestFeedbackTodayElem) totalSuggestFeedbackTodayElem.innerText = '0';
       }
     }
-    loadAdminDashboardStats();
+    const hasAdminStatsWidgets = !!document.getElementById('totalUsers') || !!document.getElementById('totalChats');
+    if (hasAdminStatsWidgets) {
+      loadAdminDashboardStats();
+    }
 });
 
 // Add some additional interactive features
@@ -1266,7 +1291,11 @@ async function loadAdminUserGrowthChart(mode) {
 } 
 
 document.addEventListener('DOMContentLoaded', async function() {
-  if (window.location.pathname.endsWith('login.html')) return;
+  const path = window.location.pathname.toLowerCase();
+  const isPublicPage = path.endsWith('login.html') || path.endsWith('signup.html') || path.endsWith('index.html') || path.endsWith('/');
+  if (isPublicPage) return;
+  refreshAuthVars();
+  if (!jwtToken) return;
   // Set real admin name and avatar in the topbar
   try {
     const user = await apiFetch('/profile/me');

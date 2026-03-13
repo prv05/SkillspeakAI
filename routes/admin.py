@@ -139,6 +139,22 @@ def set_admin_by_email():
 def admin_stats():
     """Get admin dashboard statistics"""
     try:
+        if mongo.db is None:
+            return jsonify({
+                'total_users': 0,
+                'admin_users': 0,
+                'new_users_this_week': 0,
+                'total_feedback': 0,
+                'new_feedback_this_month': 0,
+                'active_chats': 0,
+                'new_chats_today': 0,
+                'total_chats': 0,
+                'today_chats': 0,
+                'total_suggest_feedback': 0,
+                'total_suggest_feedback_today': 0,
+                'warning': 'Database is not connected. Check MONGO_URI database name and Atlas connectivity.'
+            }), 200
+
         # Get total users
         total_users = mongo.db.users.count_documents({})
         admin_users = mongo.db.users.count_documents({'role': 'admin'})

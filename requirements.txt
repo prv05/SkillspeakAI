@@ -1,11 +1,10 @@
 Flask
 Flask-PyMongo
 Flask-JWT-Extended
-bson
+python-dotenv
 flask-cors
 werkzeug
 requests
-ollama
 pyttsx3
 SpeechRecognition
 openai-whisper
